@@ -1,0 +1,70 @@
+import { ArrowDownRight, ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
+import { useState } from "react";
+
+function OpportunityCard({ opportunity, featured = false }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const cardClass = `opportunity-card${featured ? " opportunity-card--featured" : ""}`;
+
+  return (
+    <article className={cardClass}>
+      <div className={`card-art card-art--${opportunity.color}`} aria-hidden="true">
+        <span className="art-orbit art-orbit--one" />
+        <span className="art-orbit art-orbit--two" />
+        <span className="art-center">{opportunity.initials}</span>
+        <span className="art-spark art-spark--one" />
+        <span className="art-spark art-spark--two" />
+      </div>
+      <div className="opportunity-card-body">
+        <div className="card-kicker">
+          <span className="category-badge">{opportunity.category}</span>
+          <span className="card-dot" aria-hidden="true" />
+          <span>{opportunity.eyebrow}</span>
+        </div>
+        <h3>{opportunity.title}</h3>
+        <div className="professor-row">
+          <span aria-hidden="true" className={`professor-avatar professor-avatar--${opportunity.color}`}>
+            {opportunity.initials}
+          </span>
+          <span>
+            <strong>{opportunity.professor}</strong>
+            <span className="professor-role">{opportunity.role}</span>
+          </span>
+        </div>
+        <div className="card-meta">
+          <span><MapPin aria-hidden="true" size={15} />{opportunity.location}</span>
+          <span><Clock3 aria-hidden="true" size={15} />{opportunity.commitment}</span>
+        </div>
+        <div className="card-skills">
+          {opportunity.skills.map((skill) => (
+            <span className="skill-tag" key={skill}>{skill}</span>
+          ))}
+        </div>
+        {detailsOpen && (
+          <div className="card-details">
+            <p>{opportunity.description}</p>
+            <a href={opportunity.applicationHref}>
+              Contact the research team <ArrowUpRight aria-hidden="true" size={15} />
+            </a>
+          </div>
+        )}
+        <div className="card-bottom">
+          <div className="deadline">
+            <CalendarDays aria-hidden="true" size={16} />
+            <span>Apply by <strong>{opportunity.deadlineLabel}</strong></span>
+          </div>
+          <button
+            aria-expanded={detailsOpen}
+            className="card-link"
+            onClick={() => setDetailsOpen(!detailsOpen)}
+            type="button"
+          >
+            {detailsOpen ? "Close details" : "View details"}
+            {detailsOpen ? <ArrowDownRight aria-hidden="true" size={16} /> : <ArrowUpRight aria-hidden="true" size={16} />}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default OpportunityCard;
