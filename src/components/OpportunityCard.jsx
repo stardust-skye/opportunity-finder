@@ -19,6 +19,7 @@ function OpportunityCard({ opportunity, featured = false }) {
           <span className="card-dot" aria-hidden="true" />
           <span>{opportunity.eyebrow}</span>
         </div>
+        <span className="card-opportunity-type">{opportunity.type}</span>
         <h3>{opportunity.title}</h3>
         <p className="card-description">{opportunity.description}</p>
         <div className="professor-row">

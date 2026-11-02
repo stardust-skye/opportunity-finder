@@ -78,8 +78,8 @@ function ExplorePage() {
         <div className="content-width explore-hero-inner">
           <div className="explore-heading">
             <span className="section-eyebrow"><span className="eyebrow-line" />THE OPEN NOTEBOOK</span>
-            <h1>Research that<br /><span>starts with a why.</span></h1>
-            <p>Find a question worth asking, a professor to learn from, and room to grow.</p>
+            <h1>Opportunity<br /><span>starts with a why.</span></h1>
+            <p>Find something worth exploring, a professor to learn from, and room to grow.</p>
           </div>
           <div aria-hidden="true" className="explore-illustration">
             <span className="explore-illustration-ring explore-illustration-ring--outer" />
@@ -94,12 +94,12 @@ function ExplorePage() {
           <div className="content-width explore-ribbon-inner">
             <span><span className="status-pulse" /> OPEN TO NC STATE STUDENTS</span>
             <span>YOUR NEXT BIG QUESTION STARTS SOMEWHERE.</span>
-            <span>FACULTY-LED RESEARCH <ArrowUpRight aria-hidden="true" size={15} /></span>
+            <span>PROFESSOR-POSTED OPPORTUNITIES <ArrowUpRight aria-hidden="true" size={15} /></span>
           </div>
         </div>
       </section>
 
-      <section aria-label="Browse research opportunities" className="explore-results content-width">
+      <section aria-label="Browse opportunities" className="explore-results content-width">
         <div className="browse-toolbar">
           <SearchBar onChange={setSearch} value={search} />
           <button
@@ -115,7 +115,7 @@ function ExplorePage() {
           </button>
         </div>
         <div className="filter-section">
-          <span className="filter-label">RESEARCH CATEGORIES</span>
+          <span className="filter-label">OPPORTUNITY CATEGORIES</span>
           <CategoryFilter
             activeCategory={activeCategory}
             categories={categories}
@@ -177,7 +177,7 @@ function ExplorePage() {
         )}
         <p className="explore-footnote">
           <span className="status-pulse" />
-          Listings are provided by research teams. Professor publishing access is verified separately.
+          Opportunities are shared by professors. Publishing access is verified separately.
         </p>
       </section>
     </div>

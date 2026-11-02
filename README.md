@@ -1,6 +1,6 @@
 # Opportunity Finder
 
-A research discovery experience for the NC State community. This frontend is a static React application with realistic sample opportunities; account forms and professor publishing are previews only.
+An opportunity discovery experience for the NC State community. This frontend is a static React application with realistic sample opportunities; account forms and professor publishing are previews only.
 
 ## Getting started
 
@@ -24,14 +24,14 @@ npm run preview
 src/
   components/  Shared navigation, cards, buttons, filters, and form pieces
   context/     Theme preference and system-theme initialization
-  data/        Local mock research opportunities
+  data/        Local mock opportunities
   pages/       Landing, Explore, opportunity details, sign in, and registration routes
   styles.css   Tailwind layers and theme-aware responsive design system
 ```
 
 ## Routes
 
-- `/` — landing page and featured research
+- `/` — landing page and featured opportunities
 - `/opportunities` — searchable, filterable, and sortable sample listings
 - `/opportunities/:id` — opportunity description and mock application/contact link
 - `/login` — frontend-only sign-in form

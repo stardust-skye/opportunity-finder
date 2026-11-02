@@ -23,8 +23,8 @@ function Footer() {
           <div className="footer-links">
             <div>
               <span className="footer-heading">Discover</span>
-              <Link to="/opportunities">Research opportunities</Link>
-              <a href="/#research-areas">Browse research areas</a>
+              <Link to="/opportunities">Browse opportunities</Link>
+              <a href="/#research-areas">Browse opportunity categories</a>
             </div>
             <div>
               <span className="footer-heading">Get started</span>
@@ -38,7 +38,7 @@ function Footer() {
           </Link>
         </div>
         <div className="footer-bottom">
-          <span>Opportunity Finder <span aria-hidden="true">·</span> An independent student-built project</span>
+          <span>Opportunity Finder <span aria-hidden="true">·</span> Built by the Tech Committee at ACM NCSU</span>
           <span>For the curious minds of NC State, Raleigh, NC</span>
         </div>
       </div>

@@ -10,7 +10,7 @@ function AuthShell({ children, eyebrow, title, description, variant = "student" 
         </Link>
         <div className="auth-editorial">
           <span className="auth-editorial-mark" aria-hidden="true">“</span>
-          <p>Research is how tomorrow gets made.</p>
+          <p>Opportunity is how tomorrow gets made.”</p>
           <span>A place for the people who want to find out.</span>
           <span className="auth-editorial-caption">OPPORTUNITY FINDER · NC STATE</span>
         </div>

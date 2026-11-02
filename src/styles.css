@@ -2868,6 +2868,18 @@ select:focus-visible {
   -webkit-line-clamp: 3;
 }
 
+.card-opportunity-type {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--ink-faint);
+  font-size: 9px;
+  font-weight: 550;
+}
+
+.opportunity-card .card-opportunity-type + h3 {
+  margin-top: 5px;
+}
+
 .opportunity-card .card-bottom {
   align-items: flex-start;
 }

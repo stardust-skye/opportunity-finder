@@ -14,7 +14,7 @@ function LandingPage() {
           <div className="hero-copy">
             <div className="hero-eyebrow">
               <span className="status-pulse" />
-              A research community at NC State
+              An opportunity community at NC State
             </div>
             <h1>
               Big questions
@@ -24,7 +24,7 @@ function LandingPage() {
               minds.
             </h1>
             <p className="hero-description">
-              The best place to begin your research journey? With the people already asking what’s next.
+              Find opportunities to learn, contribute, and explore what’s next.
             </p>
             <div className="hero-actions">
               <Button to="/opportunities">
@@ -66,7 +66,7 @@ function LandingPage() {
               <span>FIELD / OPEN</span>
               <strong>Room to explore</strong>
             </div>
-            <div className="visual-coordinate" aria-hidden="true">CURIOUS BY NATURE · EST. 2025</div>
+            <div className="visual-coordinate" aria-hidden="true">CURIOUS BY NATURE · EST. 2026</div>
           </div>
         </div>
         <a className="scroll-cue" href="#featured">
@@ -108,7 +108,7 @@ function LandingPage() {
               <div>
                 <span className="step-audience">FOR STUDENTS</span>
                 <h3>Find a question that feels like yours.</h3>
-                <p>Explore real faculty-led projects by topic, interest, or the skills you’d love to learn.</p>
+                <p>Explore professor-posted opportunities by topic, interest, or the skills you’d love to learn.</p>
                 <Link to="/opportunities">Explore the open questions <ArrowUpRight aria-hidden="true" size={15} /></Link>
               </div>
               <span aria-hidden="true" className="step-spark">✳</span>
@@ -116,14 +116,14 @@ function LandingPage() {
             <article className="how-step">
               <span className="step-number">02</span>
               <div>
-                <span className="step-audience">FOR RESEARCHERS</span>
+                <span className="step-audience">FOR PROFESSORS</span>
                 <h3>Meet the students ready to dig in.</h3>
-                <p>Introduce your work to a curious campus community and invite the right people to reach out.</p>
+                <p>Professors can share opportunities with curious students once publishing access is verified.</p>
                 <Link to="/register">Join the community <ArrowUpRight aria-hidden="true" size={15} /></Link>
               </div>
               <span aria-hidden="true" className="step-spark">⌘</span>
             </article>
-            <p className="how-disclaimer">University email connects you to our community. Research and publishing permissions are verified separately.</p>
+            <p className="how-disclaimer">An NC State email connects you to our community. Professor publishing permissions are verified separately.</p>
           </div>
         </div>
       </section>

@@ -339,7 +339,7 @@ export const opportunities = [
       "Support a biodiversity project that uses field recordings to understand how forest soundscapes change over time. Students help organize recordings, explore audio analysis tools, and connect observations with ecological context.",
     objectives: [
       "Explore how sound recordings can complement field observations of biodiversity.",
-      "Organize an analysis workflow that helps researchers review large audio collections.",
+      "Organize an analysis workflow that helps the lab review large audio collections.",
     ],
     responsibilities: [
       "Label and organize recordings using the lab's documented workflow.",
