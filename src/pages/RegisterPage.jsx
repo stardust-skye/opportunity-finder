@@ -5,7 +5,7 @@ import AuthShell from "../components/AuthShell.jsx";
 import Button from "../components/Button.jsx";
 import FormField from "../components/FormField.jsx";
 
-const accountTypes = ["Student", "Professor", "Researcher", "Staff"];
+const accountTypes = ["Student", "Professor"];
 
 function RegisterPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -40,6 +40,7 @@ function RegisterPage() {
         <FormField
           autoComplete="email"
           id="register-email"
+          hint="Both students and professors must register with an @ncsu.edu address."
           label="NC State email"
           name="email"
           placeholder="you@ncsu.edu"
@@ -90,13 +91,13 @@ function RegisterPage() {
             ))}
           </div>
           <span className="field-hint">
-            Account type does not grant publishing access. Research roles are verified separately.
+            Students can discover opportunities. Professor publishing access will require separate verification.
           </span>
         </fieldset>
         <label className="terms-field">
           <input name="termsAccepted" required type="checkbox" />
           <span>
-            I agree to the community guidelines and understand this is a Day 1 preview. You must be 13 or older.
+            I agree to the community guidelines and understand this is a preview. You must be 13 or older.
           </span>
         </label>
         <Button className="auth-submit" type="submit">

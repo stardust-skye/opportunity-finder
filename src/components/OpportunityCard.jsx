@@ -1,8 +1,7 @@
-import { ArrowDownRight, ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function OpportunityCard({ opportunity, featured = false }) {
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const cardClass = `opportunity-card${featured ? " opportunity-card--featured" : ""}`;
 
   return (
@@ -21,6 +20,7 @@ function OpportunityCard({ opportunity, featured = false }) {
           <span>{opportunity.eyebrow}</span>
         </div>
         <h3>{opportunity.title}</h3>
+        <p className="card-description">{opportunity.description}</p>
         <div className="professor-row">
           <span aria-hidden="true" className={`professor-avatar professor-avatar--${opportunity.color}`}>
             {opportunity.initials}
@@ -39,28 +39,14 @@ function OpportunityCard({ opportunity, featured = false }) {
             <span className="skill-tag" key={skill}>{skill}</span>
           ))}
         </div>
-        {detailsOpen && (
-          <div className="card-details">
-            <p>{opportunity.description}</p>
-            <a href={opportunity.applicationHref}>
-              Contact the research team <ArrowUpRight aria-hidden="true" size={15} />
-            </a>
-          </div>
-        )}
         <div className="card-bottom">
           <div className="deadline">
             <CalendarDays aria-hidden="true" size={16} />
             <span>Apply by <strong>{opportunity.deadlineLabel}</strong></span>
           </div>
-          <button
-            aria-expanded={detailsOpen}
-            className="card-link"
-            onClick={() => setDetailsOpen(!detailsOpen)}
-            type="button"
-          >
-            {detailsOpen ? "Close details" : "View details"}
-            {detailsOpen ? <ArrowDownRight aria-hidden="true" size={16} /> : <ArrowUpRight aria-hidden="true" size={16} />}
-          </button>
+          <Link className="card-link" to={`/opportunities/${opportunity.id}`}>
+            View details <ArrowUpRight aria-hidden="true" size={16} />
+          </Link>
         </div>
       </div>
     </article>

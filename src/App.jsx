@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar.jsx";
 import ExplorePage from "./pages/ExplorePage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import OpportunityDetailsPage from "./pages/OpportunityDetailsPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/opportunities" element={<ExplorePage />} />
+          <Route path="/opportunities/:id" element={<OpportunityDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<LandingPage />} />

@@ -1,25 +1,43 @@
-import { ArrowUpRight, Compass, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpRight, Compass, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
+import ActiveFilters from "../components/ActiveFilters.jsx";
 import CategoryFilter from "../components/CategoryFilter.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import OpportunityCard from "../components/OpportunityCard.jsx";
+import OpportunityTypeFilter from "../components/OpportunityTypeFilter.jsx";
 import SearchBar from "../components/SearchBar.jsx";
-import { categories, opportunities, skillOptions } from "../data/opportunities.js";
+import SkillsFilter from "../components/SkillsFilter.jsx";
+import SortDropdown from "../components/SortDropdown.jsx";
+import {
+  categories,
+  opportunities,
+  opportunityTypes,
+  skillOptions,
+} from "../data/opportunities.js";
+
+function toggleValue(values, value) {
+  return values.includes(value)
+    ? values.filter((current) => current !== value)
+    : [...values, value];
+}
 
 function ExplorePage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("");
   const [activeSkills, setActiveSkills] = useState([]);
+  const [activeTypes, setActiveTypes] = useState([]);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState("newest");
 
   const filteredOpportunities = useMemo(() => {
     const normalizedQuery = search.trim().toLowerCase();
-
-    return opportunities.filter((opportunity) => {
+    const filtered = opportunities.filter((opportunity) => {
       const searchableFields = [
         opportunity.title,
+        opportunity.description,
         opportunity.professor,
+        opportunity.department,
         opportunity.category,
-        opportunity.eyebrow,
         ...opportunity.skills,
       ];
       const matchesSearch =
@@ -30,26 +48,29 @@ function ExplorePage() {
       const matchesSkills = activeSkills.every((skill) =>
         opportunity.skills.includes(skill),
       );
+      const matchesType =
+        activeTypes.length === 0 || activeTypes.includes(opportunity.type);
 
-      return matchesSearch && matchesCategory && matchesSkills;
+      return matchesSearch && matchesCategory && matchesSkills && matchesType;
     });
-  }, [activeCategory, activeSkills, search]);
 
-  function toggleSkill(skill) {
-    setActiveSkills((current) =>
-      current.includes(skill)
-        ? current.filter((value) => value !== skill)
-        : [...current, skill],
-    );
-  }
+    return filtered.sort((first, second) => {
+      if (sortOrder === "deadline-soonest") {
+        return first.deadline.localeCompare(second.deadline);
+      }
+      if (sortOrder === "deadline-latest") {
+        return second.deadline.localeCompare(first.deadline);
+      }
+      return second.postedAt.localeCompare(first.postedAt);
+    });
+  }, [activeCategory, activeSkills, activeTypes, search, sortOrder]);
 
   function clearFilters() {
     setSearch("");
     setActiveCategory("");
     setActiveSkills([]);
+    setActiveTypes([]);
   }
-
-  const hasFilters = search || activeCategory || activeSkills.length > 0;
 
   return (
     <div className="explore-page">
@@ -58,7 +79,7 @@ function ExplorePage() {
           <div className="explore-heading">
             <span className="section-eyebrow"><span className="eyebrow-line" />THE OPEN NOTEBOOK</span>
             <h1>Research that<br /><span>starts with a why.</span></h1>
-            <p>Real questions. Real researchers. Plenty of room to learn as you go.</p>
+            <p>Find a question worth asking, a professor to learn from, and room to grow.</p>
           </div>
           <div aria-hidden="true" className="explore-illustration">
             <span className="explore-illustration-ring explore-illustration-ring--outer" />
@@ -73,7 +94,7 @@ function ExplorePage() {
           <div className="content-width explore-ribbon-inner">
             <span><span className="status-pulse" /> OPEN TO NC STATE STUDENTS</span>
             <span>YOUR NEXT BIG QUESTION STARTS SOMEWHERE.</span>
-            <span>OPEN TO NC STATE STUDENTS <ArrowUpRight aria-hidden="true" size={15} /></span>
+            <span>FACULTY-LED RESEARCH <ArrowUpRight aria-hidden="true" size={15} /></span>
           </div>
         </div>
       </section>
@@ -94,7 +115,7 @@ function ExplorePage() {
           </button>
         </div>
         <div className="filter-section">
-          <span className="filter-label">RESEARCH AREAS</span>
+          <span className="filter-label">RESEARCH CATEGORIES</span>
           <CategoryFilter
             activeCategory={activeCategory}
             categories={categories}
@@ -104,42 +125,47 @@ function ExplorePage() {
         {skillsOpen && (
           <div className="skills-panel" id="skills-filters">
             <div>
-              <strong>Skills to explore</strong>
-              <span>Choose one or more. We’ll find projects that match every pick.</span>
+              <strong>Required skills</strong>
+              <span>Choose multiple skills to find opportunities that match all of them.</span>
             </div>
-            <div aria-label="Filter by skills" className="skill-filters">
-              {skillOptions.map((skill) => (
-                <button
-                  aria-pressed={activeSkills.includes(skill)}
-                  className={`filter-chip${activeSkills.includes(skill) ? " is-active" : ""}`}
-                  key={skill}
-                  onClick={() => toggleSkill(skill)}
-                  type="button"
-                >
-                  {skill}
-                </button>
-              ))}
-            </div>
+            <SkillsFilter
+              activeSkills={activeSkills}
+              onToggle={(skill) => setActiveSkills((current) => toggleValue(current, skill))}
+              skills={skillOptions}
+            />
           </div>
         )}
+        <div className="type-filter-section">
+          <span className="filter-label">OPPORTUNITY TYPE</span>
+          <OpportunityTypeFilter
+            activeTypes={activeTypes}
+            onToggle={(type) => setActiveTypes((current) => toggleValue(current, type))}
+            types={opportunityTypes}
+          />
+        </div>
         <div className="results-heading">
           <div>
             <span className="section-eyebrow"><span className="eyebrow-line" />A FEW OPEN DOORS</span>
             <h2>Room to <span>figure it out.</span></h2>
           </div>
-          <span className="results-count">
-            {filteredOpportunities.length} {filteredOpportunities.length === 1 ? "opportunity" : "opportunities"}
-          </span>
-        </div>
-        {hasFilters && (
-          <div className="active-filters">
-            <span>Showing matches for your curiosity</span>
-            {search && <span className="active-filter-tag">“{search}”</span>}
-            {activeCategory && <span className="active-filter-tag">{activeCategory}</span>}
-            {activeSkills.map((skill) => <span className="active-filter-tag" key={skill}>{skill}</span>)}
-            <button onClick={clearFilters} type="button">Clear all <X aria-hidden="true" size={14} /></button>
+          <div className="results-controls">
+            <span aria-live="polite" className="results-count">
+              {filteredOpportunities.length} {filteredOpportunities.length === 1 ? "opportunity" : "opportunities"}
+            </span>
+            <SortDropdown onChange={setSortOrder} value={sortOrder} />
           </div>
-        )}
+        </div>
+        <ActiveFilters
+          activeCategory={activeCategory}
+          activeSkills={activeSkills}
+          activeTypes={activeTypes}
+          onClear={clearFilters}
+          onRemoveCategory={() => setActiveCategory("")}
+          onRemoveSearch={() => setSearch("")}
+          onRemoveSkill={(skill) => setActiveSkills((current) => current.filter((value) => value !== skill))}
+          onRemoveType={(type) => setActiveTypes((current) => current.filter((value) => value !== type))}
+          search={search}
+        />
         {filteredOpportunities.length > 0 ? (
           <div className="opportunity-grid">
             {filteredOpportunities.map((opportunity) => (
@@ -147,18 +173,11 @@ function ExplorePage() {
             ))}
           </div>
         ) : (
-          <div className="empty-results">
-            <span aria-hidden="true" className="empty-results-mark">?</span>
-            <h3>No projects in this corner. Yet.</h3>
-            <p>Try a different search or open up your filters. Sometimes the unexpected is where it gets good.</p>
-            <button className="text-link" onClick={clearFilters} type="button">
-              Start fresh <ArrowUpRight aria-hidden="true" size={16} />
-            </button>
-          </div>
+          <EmptyState onClear={clearFilters} />
         )}
         <p className="explore-footnote">
           <span className="status-pulse" />
-          Listings are provided by research teams. Faculty publishing access is verified separately.
+          Listings are provided by research teams. Professor publishing access is verified separately.
         </p>
       </section>
     </div>

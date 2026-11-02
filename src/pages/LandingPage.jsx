@@ -38,7 +38,7 @@ function LandingPage() {
               <div aria-hidden="true" className="avatar-stack">
                 <span>MC</span><span>AW</span><span>PN</span><span>+</span>
               </div>
-              <p><strong>A community that asks more.</strong><br />For students, researchers & faculty.</p>
+              <p><strong>A community that asks more.</strong><br />For NC State students and professors.</p>
             </div>
           </div>
 

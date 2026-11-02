@@ -1,6 +1,6 @@
 function CategoryFilter({ activeCategory, categories, onSelect }) {
   return (
-    <div aria-label="Filter by research area" className="category-filter">
+    <div aria-label="Filter by research category" className="category-filter" role="group">
       {["All areas", ...categories].map((category) => {
         const selected =
           category === "All areas" ? activeCategory === "" : activeCategory === category;

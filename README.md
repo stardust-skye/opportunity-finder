@@ -1,6 +1,6 @@
 # Opportunity Finder
 
-A research discovery experience for the NC State community. This Day 1 frontend is a static React application with sample opportunities; account forms and publishing are previews only.
+A research discovery experience for the NC State community. This frontend is a static React application with realistic sample opportunities; account forms and professor publishing are previews only.
 
 ## Getting started
 
@@ -25,15 +25,16 @@ src/
   components/  Shared navigation, cards, buttons, filters, and form pieces
   context/     Theme preference and system-theme initialization
   data/        Local mock research opportunities
-  pages/       Landing, Explore, Sign in, and registration routes
+  pages/       Landing, Explore, opportunity details, sign in, and registration routes
   styles.css   Tailwind layers and theme-aware responsive design system
 ```
 
 ## Routes
 
 - `/` — landing page and featured research
-- `/opportunities` — searchable, category- and skills-filtered sample listings
+- `/opportunities` — searchable, filterable, and sortable sample listings
+- `/opportunities/:id` — opportunity description and mock application/contact link
 - `/login` — frontend-only sign-in form
 - `/register` — frontend-only account registration form
 
-Dark and light mode preferences are saved in browser local storage. With no saved choice, the app starts with the operating system's preferred color scheme. An NC State email establishes affiliation; professor publishing permissions must be verified separately. No authentication, account creation, database, or API calls are implemented.
+Dark and light mode preferences are saved in browser local storage. With no saved choice, the app starts with the operating system's preferred color scheme. Only Student and Professor account types are offered, and both require an NC State email address. Professor publishing permissions must be verified separately. No authentication, account creation, database, or API calls are implemented.

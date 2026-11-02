@@ -1,27 +1,38 @@
 export const categories = [
   "Artificial Intelligence",
+  "Machine Learning",
   "Robotics",
   "Computer Vision",
-  "Human-Computer Interaction",
   "Data Science",
+  "Human-Computer Interaction",
   "Cybersecurity",
-  "Other research areas",
+  "Autonomous Systems",
+  "Other",
 ];
 
 export const skillOptions = [
   "Python",
-  "Machine learning",
-  "Computer vision",
-  "CAD",
-  "Data analysis",
+  "PyTorch",
+  "TensorFlow",
+  "C++",
+  "Java",
   "React",
-  "User research",
+  "MATLAB",
+  "Computer Vision",
+  "Machine Learning",
+];
+
+export const opportunityTypes = [
+  "Research Assistantship",
+  "Volunteer Research",
+  "Course Credit",
 ];
 
 export const opportunities = [
   {
     id: "climate-ai",
     category: "Artificial Intelligence",
+    department: "College of Natural Resources · Environmental Data Science",
     eyebrow: "College of Natural Resources",
     title: "Making climate models more explainable",
     professor: "Dr. Maya Chen",
@@ -30,16 +41,34 @@ export const opportunities = [
     color: "coral",
     location: "Hybrid · Raleigh, NC",
     commitment: "8–10 hrs/week",
+    type: "Research Assistantship",
     deadline: "2026-12-05",
     deadlineLabel: "Dec 5, 2026",
-    skills: ["Python", "Machine learning", "Data analysis"],
+    postedAt: "2026-10-28",
+    skills: ["Python", "PyTorch", "Machine Learning"],
     description:
       "Help the Climate Informatics Lab make regional climate projections easier to interpret. You will work with satellite and sensor datasets, develop explainability methods, and contribute to research with practical impact across North Carolina.",
+    objectives: [
+      "Evaluate how model explanations can help communities interpret regional climate projections.",
+      "Compare explainability techniques on satellite and environmental sensor datasets.",
+    ],
+    responsibilities: [
+      "Clean and document research datasets with guidance from the lab.",
+      "Implement and evaluate analysis workflows in Python.",
+      "Share progress and findings during weekly lab meetings.",
+    ],
+    qualifications: [
+      "Currently enrolled as an NC State undergraduate or graduate student.",
+      "Curiosity about climate, data, or responsible AI; prior research experience is not required.",
+    ],
+    applicationInstructions:
+      "Email a brief introduction, your resume, and a paragraph about a question you would like to explore.",
     applicationHref: "mailto:mchen@ncsu.edu?subject=Climate%20models%20research",
   },
   {
     id: "robotic-assistance",
     category: "Robotics",
+    department: "College of Engineering · Mechanical and Aerospace Engineering",
     eyebrow: "College of Engineering",
     title: "Robots that feel at home in the real world",
     professor: "Dr. Andre Wallace",
@@ -48,17 +77,34 @@ export const opportunities = [
     color: "blue",
     location: "On campus · Centennial Campus",
     commitment: "10 hrs/week",
+    type: "Research Assistantship",
     deadline: "2026-12-12",
     deadlineLabel: "Dec 12, 2026",
-    skills: ["Python", "CAD", "Machine learning"],
+    postedAt: "2026-10-26",
+    skills: ["Python", "C++", "Machine Learning"],
     description:
       "Join the Everyday Robotics Group to test how mobile robots navigate shared workspaces. Students collaborate on physical prototypes, human-centered testing, and the software that connects the two.",
-    applicationHref:
-      "mailto:awallace@ncsu.edu?subject=Everyday%20robotics%20research",
+    objectives: [
+      "Improve safe, reliable navigation for mobile robots in busy shared spaces.",
+      "Understand how people and robots can coordinate naturally in everyday settings.",
+    ],
+    responsibilities: [
+      "Help run supervised robot experiments on Centennial Campus.",
+      "Build and test software prototypes with the research team.",
+      "Record observations and discuss results in team meetings.",
+    ],
+    qualifications: [
+      "Interest in robotics, engineering, or human-robot interaction.",
+      "Experience with programming or physical prototyping is helpful but not required.",
+    ],
+    applicationInstructions:
+      "Send a short note describing your interests and attach a resume or link to a project portfolio.",
+    applicationHref: "mailto:awallace@ncsu.edu?subject=Everyday%20robotics%20research",
   },
   {
     id: "visual-archive",
     category: "Computer Vision",
+    department: "College of Design · Graphic and Experience Design",
     eyebrow: "College of Design",
     title: "Teaching machines to read the archive",
     professor: "Dr. Priya Nair",
@@ -67,17 +113,34 @@ export const opportunities = [
     color: "lavender",
     location: "On campus · Raleigh, NC",
     commitment: "6–8 hrs/week",
+    type: "Course Credit",
     deadline: "2027-01-09",
     deadlineLabel: "Jan 9, 2027",
-    skills: ["Python", "Computer vision", "Data analysis"],
+    postedAt: "2026-10-24",
+    skills: ["Python", "Computer Vision", "PyTorch"],
     description:
       "Explore how computer vision can help historians discover patterns in historic maps and photographs. You will help curate training data, evaluate multimodal models, and learn to approach cultural collections with care.",
-    applicationHref:
-      "mailto:pnair@ncsu.edu?subject=Visual%20archive%20research",
+    objectives: [
+      "Explore responsible ways to make historic image collections more searchable.",
+      "Measure how computer vision models perform across different archival materials.",
+    ],
+    responsibilities: [
+      "Review and annotate a small collection of maps and photographs.",
+      "Assist with model evaluation and organize results for the team.",
+      "Follow project guidelines for respectful handling of cultural materials.",
+    ],
+    qualifications: [
+      "Interest in visual computing, history, design, or digital collections.",
+      "Careful attention to detail and willingness to learn new research tools.",
+    ],
+    applicationInstructions:
+      "Email Dr. Nair with your resume and a few sentences about what interests you in archives or computer vision.",
+    applicationHref: "mailto:pnair@ncsu.edu?subject=Visual%20archive%20research",
   },
   {
     id: "accessible-interfaces",
     category: "Human-Computer Interaction",
+    department: "College of Education · Learning, Design, and Technology",
     eyebrow: "College of Education",
     title: "Designing digital spaces for everyone",
     professor: "Dr. Jordan Ellis",
@@ -86,17 +149,34 @@ export const opportunities = [
     color: "green",
     location: "Hybrid · Raleigh, NC",
     commitment: "5–7 hrs/week",
+    type: "Volunteer Research",
     deadline: "2027-01-16",
     deadlineLabel: "Jan 16, 2027",
-    skills: ["User research", "React", "Data analysis"],
+    postedAt: "2026-10-22",
+    skills: ["React", "Java", "Machine Learning"],
     description:
       "Work alongside students and community partners to understand where everyday websites exclude users. Help prototype accessible interface improvements and turn interview findings into actionable design recommendations.",
-    applicationHref:
-      "mailto:jellis@ncsu.edu?subject=Accessible%20interfaces%20research",
+    objectives: [
+      "Identify common accessibility barriers in frequently used digital services.",
+      "Prototype and evaluate interface improvements with inclusive design methods.",
+    ],
+    responsibilities: [
+      "Assist with accessibility reviews and literature searches.",
+      "Build or refine small interface prototypes with the team.",
+      "Help synthesize feedback into clear design recommendations.",
+    ],
+    qualifications: [
+      "Interest in accessible technology, design, or user experience research.",
+      "Comfort collaborating and communicating with a diverse project team.",
+    ],
+    applicationInstructions:
+      "Email a brief introduction and optionally include examples of design or development work.",
+    applicationHref: "mailto:jellis@ncsu.edu?subject=Accessible%20interfaces%20research",
   },
   {
     id: "campus-energy",
     category: "Data Science",
+    department: "College of Engineering · Civil, Construction, and Environmental Engineering",
     eyebrow: "College of Engineering",
     title: "What can campus buildings teach us about energy?",
     professor: "Dr. Elena Brooks",
@@ -105,17 +185,34 @@ export const opportunities = [
     color: "gold",
     location: "Hybrid · Centennial Campus",
     commitment: "8 hrs/week",
+    type: "Research Assistantship",
     deadline: "2027-01-23",
     deadlineLabel: "Jan 23, 2027",
-    skills: ["Python", "Data analysis", "Machine learning"],
+    postedAt: "2026-10-20",
+    skills: ["Python", "MATLAB", "TensorFlow"],
     description:
       "Work with anonymized building sensor data to find ways the campus can use energy more wisely. This project combines data exploration, interpretable forecasting, and opportunities to share findings with campus partners.",
-    applicationHref:
-      "mailto:ebrooks@ncsu.edu?subject=Campus%20energy%20research",
+    objectives: [
+      "Discover patterns in campus building energy use.",
+      "Assess forecasting approaches that can support more efficient building operations.",
+    ],
+    responsibilities: [
+      "Prepare and visualize anonymized sensor datasets.",
+      "Compare baseline forecasting models and document results.",
+      "Present key findings to the project team.",
+    ],
+    qualifications: [
+      "Interest in data analysis, sustainability, or the built environment.",
+      "Some experience with spreadsheets or a programming language is useful.",
+    ],
+    applicationInstructions:
+      "Send your resume and a short note about your interest in energy or data science to Dr. Brooks.",
+    applicationHref: "mailto:ebrooks@ncsu.edu?subject=Campus%20energy%20research",
   },
   {
     id: "trustworthy-computing",
     category: "Cybersecurity",
+    department: "College of Engineering · Computer Science",
     eyebrow: "College of Engineering",
     title: "Building better intuitions for online privacy",
     professor: "Dr. Samuel Ortiz",
@@ -124,17 +221,34 @@ export const opportunities = [
     color: "slate",
     location: "On campus · Raleigh, NC",
     commitment: "6–8 hrs/week",
+    type: "Volunteer Research",
     deadline: "2027-01-30",
     deadlineLabel: "Jan 30, 2027",
-    skills: ["User research", "Data analysis", "Python"],
+    postedAt: "2026-10-18",
+    skills: ["Java", "Python", "Machine Learning"],
     description:
       "Study how people understand common privacy decisions online and explore ways security tools can better communicate their trade-offs. Students will assist with a literature review, participant studies, and analysis.",
-    applicationHref:
-      "mailto:sortiz@ncsu.edu?subject=Online%20privacy%20research",
+    objectives: [
+      "Understand how people interpret privacy choices in everyday software.",
+      "Explore ways to make security and privacy trade-offs easier to understand.",
+    ],
+    responsibilities: [
+      "Summarize research literature with guidance from the lab.",
+      "Help prepare study materials and organize anonymized feedback.",
+      "Discuss findings and possible design directions with the team.",
+    ],
+    qualifications: [
+      "Interest in privacy, security, communication, or human-centered research.",
+      "No prior security experience required; careful, ethical work is essential.",
+    ],
+    applicationInstructions:
+      "Email Dr. Ortiz a brief introduction and an explanation of what interests you about online privacy.",
+    applicationHref: "mailto:sortiz@ncsu.edu?subject=Online%20privacy%20research",
   },
   {
     id: "materials-discovery",
-    category: "Other research areas",
+    category: "Machine Learning",
+    department: "College of Sciences · Chemistry",
     eyebrow: "College of Sciences",
     title: "A faster path from molecules to new materials",
     professor: "Dr. Leah Patel",
@@ -143,12 +257,101 @@ export const opportunities = [
     color: "peach",
     location: "Hybrid · Raleigh, NC",
     commitment: "8–10 hrs/week",
+    type: "Research Assistantship",
     deadline: "2027-02-06",
     deadlineLabel: "Feb 6, 2027",
-    skills: ["Python", "Machine learning", "Data analysis"],
+    postedAt: "2026-10-16",
+    skills: ["Python", "TensorFlow", "PyTorch"],
     description:
       "Explore how computational tools can narrow down promising materials before they're made in the lab. You will work with molecular datasets, learn to evaluate predictions, and see how computation complements experimentation.",
+    objectives: [
+      "Evaluate machine learning methods for predicting material properties.",
+      "Connect computational predictions to questions that can be tested in a lab.",
+    ],
+    responsibilities: [
+      "Explore and document molecular datasets.",
+      "Run supervised model comparisons using existing lab workflows.",
+      "Share results with computational and experimental collaborators.",
+    ],
+    qualifications: [
+      "Interest in chemistry, materials, computing, or scientific discovery.",
+      "A willingness to learn; prior machine learning experience is not required.",
+    ],
+    applicationInstructions:
+      "Email Dr. Patel with a resume and a brief note about your interests and relevant coursework.",
+    applicationHref: "mailto:lpatel@ncsu.edu?subject=Materials%20discovery%20research",
+  },
+  {
+    id: "autonomous-field-robots",
+    category: "Autonomous Systems",
+    department: "College of Engineering · Electrical and Computer Engineering",
+    eyebrow: "College of Engineering",
+    title: "Helping field robots find their way",
+    professor: "Dr. Noah Williams",
+    role: "Assistant Professor · Autonomous Systems",
+    initials: "NW",
+    color: "blue",
+    location: "On campus · Centennial Campus",
+    commitment: "8 hrs/week",
+    type: "Course Credit",
+    deadline: "2027-02-13",
+    deadlineLabel: "Feb 13, 2027",
+    postedAt: "2026-10-14",
+    skills: ["C++", "MATLAB", "Computer Vision"],
+    description:
+      "Help a campus robotics team study how small autonomous vehicles can navigate changing outdoor environments. The work combines sensor data, mapping, and supervised field experiments.",
+    objectives: [
+      "Improve localization when outdoor conditions change.",
+      "Compare sensor-based mapping approaches in repeatable field tests.",
+    ],
+    responsibilities: [
+      "Assist with sensor setup and supervised data collection.",
+      "Analyze recorded data and help evaluate navigation approaches.",
+      "Maintain clear experiment notes and share observations.",
+    ],
+    qualifications: [
+      "Interest in robotics, autonomous vehicles, or embedded systems.",
+      "Comfort learning in a hands-on team environment.",
+    ],
+    applicationInstructions:
+      "Contact Dr. Williams with your resume and a short description of a technical question you enjoy solving.",
     applicationHref:
-      "mailto:lpatel@ncsu.edu?subject=Materials%20discovery%20research",
+      "mailto:nwilliams@ncsu.edu?subject=Field%20robotics%20research",
+  },
+  {
+    id: "wildlife-sensing",
+    category: "Other",
+    department: "College of Natural Resources · Forestry and Environmental Resources",
+    eyebrow: "College of Natural Resources",
+    title: "Listening for wildlife in a changing forest",
+    professor: "Dr. Sofia Ramirez",
+    role: "Associate Professor · Forest Biodiversity",
+    initials: "SR",
+    color: "green",
+    location: "Hybrid · Raleigh, NC",
+    commitment: "5–8 hrs/week",
+    type: "Volunteer Research",
+    deadline: "2027-02-20",
+    deadlineLabel: "Feb 20, 2027",
+    postedAt: "2026-10-12",
+    skills: ["Python", "MATLAB", "TensorFlow"],
+    description:
+      "Support a biodiversity project that uses field recordings to understand how forest soundscapes change over time. Students help organize recordings, explore audio analysis tools, and connect observations with ecological context.",
+    objectives: [
+      "Explore how sound recordings can complement field observations of biodiversity.",
+      "Organize an analysis workflow that helps researchers review large audio collections.",
+    ],
+    responsibilities: [
+      "Label and organize recordings using the lab's documented workflow.",
+      "Test simple audio analysis methods and record their limitations.",
+      "Work with the team to interpret patterns in ecological context.",
+    ],
+    qualifications: [
+      "Interest in ecology, environmental data, or audio analysis.",
+      "Patience and attention to detail; programming experience is optional.",
+    ],
+    applicationInstructions:
+      "Email Dr. Ramirez a short introduction and let her know what interests you about forests or biodiversity.",
+    applicationHref: "mailto:sramirez@ncsu.edu?subject=Wildlife%20sensing%20research",
   },
 ];

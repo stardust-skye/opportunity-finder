@@ -24,6 +24,7 @@ function LoginPage() {
       <form className="auth-form" onSubmit={handleSubmit}>
         <FormField
           autoComplete="email"
+          hint="Sign in with the @ncsu.edu address you used to register."
           id="email"
           label="NC State email"
           name="email"
