@@ -1,24 +1,43 @@
 import { ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthShell from "../components/AuthShell.jsx";
 import Button from "../components/Button.jsx";
 import FormField from "../components/FormField.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const accountTypes = ["Student", "Professor"];
 
 function RegisterPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     if (formData.get("password") !== formData.get("confirmPassword")) {
       setMessage("Those passwords don’t match yet. Give them another look.");
       return;
     }
-    setMessage("Account creation is coming soon. This preview doesn't send or store your information.");
+    setBusy(true);
+    setMessage("");
+    try {
+      await register({
+        name: formData.get("fullName"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+        role: formData.get("accountType"),
+      });
+      navigate("/login", { state: { message: "Demo account created. Please sign in." } });
+    } catch (error) {
+      console.error("Demo registration failed.", error);
+      setMessage(error.message || "Account creation failed. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -47,7 +66,6 @@ function RegisterPage() {
           required
           title="Please use your @ncsu.edu email address."
           type="email"
-          pattern="[^@\s]+@ncsu\.edu"
         />
         <div className="auth-form-row">
           <FormField
@@ -100,7 +118,7 @@ function RegisterPage() {
             I agree to the community guidelines and understand this is a preview. You must be 13 or older.
           </span>
         </label>
-        <Button className="auth-submit" type="submit">
+        <Button className="auth-submit" disabled={busy} type="submit">
           Create your account <ArrowRight aria-hidden="true" size={17} />
         </Button>
         {message && <p aria-live="polite" className="form-status">{message}</p>}
@@ -110,7 +128,7 @@ function RegisterPage() {
       </p>
       <p className="auth-note">
         <ShieldCheck aria-hidden="true" size={15} />
-        NC State email establishes affiliation; professor status and publishing access require separate verification.
+        Demo only: accounts are local to this browser, and email does not verify affiliation or professor status.
       </p>
     </AuthShell>
   );

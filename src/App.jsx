@@ -1,6 +1,7 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer.jsx";
 import Navbar from "./components/Navbar.jsx";
+import ProfessorGuard from "./components/ProfessorGuard.jsx";
 import ExplorePage from "./pages/ExplorePage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -24,9 +25,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/opportunities" element={<ExplorePage />} />
           <Route path="/opportunities/:id" element={<OpportunityDetailsPage />} />
-          <Route path="/professor/dashboard" element={<ProfessorDashboardPage />} />
-          <Route path="/professor/opportunities/new" element={<OpportunityFormPage />} />
-          <Route path="/professor/opportunities/:id/edit" element={<OpportunityFormPage />} />
+          <Route path="/professor/dashboard" element={<ProfessorGuard><ProfessorDashboardPage /></ProfessorGuard>} />
+          <Route path="/professor/opportunities/new" element={<ProfessorGuard requireVerification><OpportunityFormPage /></ProfessorGuard>} />
+          <Route path="/professor/opportunities/:id/edit" element={<ProfessorGuard requireVerification><OpportunityFormPage /></ProfessorGuard>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<LandingPage />} />

@@ -1,17 +1,36 @@
 import { ArrowRight, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthShell from "../components/AuthShell.jsx";
 import Button from "../components/Button.jsx";
 import FormField from "../components/FormField.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function LoginPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { login } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setMessage("Sign-in is coming soon. This preview doesn't send or store your credentials.");
+    const formData = new FormData(event.currentTarget);
+    setBusy(true);
+    setMessage("");
+    try {
+      const user = await login(formData.get("email"), formData.get("password"));
+      const destination = user.role === "Professor"
+        ? location.state?.from || "/professor/dashboard"
+        : "/opportunities";
+      navigate(destination, { replace: true });
+    } catch (error) {
+      console.error("Demo sign-in failed.", error);
+      setMessage(error.message || "Sign-in failed. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -32,7 +51,6 @@ function LoginPage() {
           required
           title="Please enter your @ncsu.edu email address."
           type="email"
-          pattern="[^@\s]+@ncsu\.edu"
         />
         <div className="password-label-row">
           <label htmlFor="password">Password</label>
@@ -60,18 +78,20 @@ function LoginPage() {
             </button>
           </div>
         </FormField>
-        <Button className="auth-submit" type="submit">
+        <Button className="auth-submit" disabled={busy} type="submit">
           Sign in <ArrowRight aria-hidden="true" size={17} />
         </Button>
         {message && <p aria-live="polite" className="form-status">{message}</p>}
       </form>
+      {location.state?.message && <p className="form-status">{location.state.message}</p>}
+      {import.meta.env.DEV && <p className="auth-note">Development demo: student@ncsu.edu or professor@ncsu.edu, password DemoPass123!. These accounts are not production authentication.</p>}
       <div className="auth-divider"><span />NEW TO THE COMMUNITY?<span /></div>
       <p className="auth-switch">
         <Link to="/register">Create an account <ArrowRight aria-hidden="true" size={15} /></Link>
       </p>
       <p className="auth-note">
         <LockKeyhole aria-hidden="true" size={14} />
-        NC State email helps us keep this community connected.
+        Demo only: accounts and sign-in are local to this browser and are not secure authentication.
       </p>
     </AuthShell>
   );

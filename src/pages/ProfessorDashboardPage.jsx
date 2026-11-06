@@ -18,13 +18,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { useOpportunities } from "../context/OpportunityContext.jsx";
-import { useProfessorVerification } from "../context/ProfessorVerificationContext.jsx";
-import { mockProfessor } from "../data/mockProfessor.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function ProfessorDashboardPage() {
   const { professorOpportunities, storageError, deleteOpportunity, setOpportunityStatus } =
     useOpportunities();
-  const { isVerified, verificationError, setVerificationStatus } = useProfessorVerification();
+  const { user, setDemoVerification } = useAuth();
+  const isVerified = user.verified;
+  const initials = user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const [pendingDelete, setPendingDelete] = useState(null);
   const [actionError, setActionError] = useState("");
   const location = useLocation();
@@ -39,10 +40,11 @@ function ProfessorDashboardPage() {
     }
 
     try {
-      setOpportunityStatus(
+      const updated = setOpportunityStatus(
         opportunity.id,
         opportunity.status === "closed" ? "open" : "closed",
       );
+      if (!updated) throw new Error("This opportunity is no longer available to manage.");
       setActionError("");
     } catch (error) {
       setActionError(error.message);
@@ -56,7 +58,9 @@ function ProfessorDashboardPage() {
     }
 
     try {
-      deleteOpportunity(pendingDelete.id);
+      if (!deleteOpportunity(pendingDelete.id)) {
+        throw new Error("This opportunity is no longer available to delete.");
+      }
       setPendingDelete(null);
       setActionError("");
     } catch (error) {
@@ -66,7 +70,7 @@ function ProfessorDashboardPage() {
 
   function toggleVerification() {
     try {
-      setVerificationStatus(!isVerified);
+      setDemoVerification(!isVerified);
       setActionError("");
     } catch (error) {
       setActionError(error.message);
@@ -79,13 +83,13 @@ function ProfessorDashboardPage() {
         <div className="content-width professor-hero-inner">
           <div className="professor-welcome">
             <span className="section-eyebrow"><span className="eyebrow-line" />FACULTY WORKSPACE</span>
-            <h1>Good to see you,<br /><span>Dr. Morgan.</span></h1>
+            <h1>Good to see you,<br /><span>{user.name}.</span></h1>
             <p>Make room for the next curious mind to find your work.</p>
             <div className="professor-profile">
-              <span aria-hidden="true" className="professor-profile-avatar">{mockProfessor.initials}</span>
+              <span aria-hidden="true" className="professor-profile-avatar">{initials}</span>
               <span>
-                <strong>{mockProfessor.name}</strong>
-                <span>{mockProfessor.role}</span>
+                <strong>{user.name}</strong>
+                <span>{user.email}</span>
               </span>
             </div>
           </div>
@@ -100,12 +104,12 @@ function ProfessorDashboardPage() {
                 ? "You can publish and manage research opportunities."
                 : "Your dashboard is ready. Publishing opens after your professor status is verified."}
             </p>
-            <div aria-label="Mock verification preview controls" className="verification-preview">
-              <span>MOCK VERIFICATION · PREVIEW ONLY</span>
+            {import.meta.env.DEV && <div aria-label="Mock verification preview controls" className="verification-preview">
+              <span>DEVELOPMENT TEST ONLY · NOT UNIVERSITY VERIFICATION</span>
               <button onClick={toggleVerification} type="button">
                 {isVerified ? "Reset to unverified" : "Preview verified access"}
               </button>
-            </div>
+            </div>}
           </div>
         </div>
       </header>
@@ -117,10 +121,10 @@ function ProfessorDashboardPage() {
             {location.state.message}
           </div>
         )}
-        {(storageError || verificationError || actionError) && (
+        {(storageError || actionError) && (
           <div aria-live="assertive" className="professor-alert">
             <CircleAlert aria-hidden="true" size={17} />
-            {actionError || storageError || verificationError}
+            {actionError || storageError}
           </div>
         )}
 
@@ -253,7 +257,7 @@ function ProfessorDashboardPage() {
           )}
           <p className="managed-disclaimer">
             <span className="status-pulse" />
-            Only opportunities published from this mock professor workspace can be managed here.
+            Only opportunities published by this demo professor account can be managed here.
           </p>
         </section>
       </div>

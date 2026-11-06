@@ -1,6 +1,6 @@
 # Opportunity Finder
 
-An opportunity discovery experience for the NC State community. This frontend is a static React application with realistic sample opportunities; account forms and professor publishing are previews only.
+An opportunity discovery experience for the NC State community. This static React application includes sample opportunities and a temporary, browser-only authentication and publishing demo.
 
 ## Getting started
 
@@ -23,7 +23,7 @@ npm run preview
 ```text
 src/
   components/  Shared navigation, cards, buttons, filters, and form pieces
-  context/     Theme, opportunity state, and mock professor verification
+  context/     Theme, demo authentication, and opportunity state
   data/        Mock listings and the localStorage opportunity-store adapter
   pages/       Landing, Explore, opportunity details, professor workspace, and auth routes
   styles.css   Tailwind layers and theme-aware responsive design system
@@ -40,4 +40,19 @@ src/
 - `/login` — frontend-only sign-in form
 - `/register` — frontend-only account registration form
 
-Dark and light mode preferences, professor-created opportunities, and the mock verification preview are saved in browser local storage. The professor dashboard is available without authentication as a Day 3 preview; new listings can only be published after switching the mock professor to verified. Only Student and Professor account types are offered, and both require an NC State email address. The localStorage adapter is isolated from page components so a future API can replace it. No authentication, real verification, database, or API calls are implemented.
+## Demo authentication and verification
+
+Register a Student or Professor with an `@ncsu.edu` address and a password of at least eight characters, then sign in. Accounts and sessions exist only in the current browser's localStorage. Passwords are stored as salted PBKDF2-SHA-256 hashes (210,000 iterations), not plaintext. Web Crypto requires HTTPS or localhost. This does **not** prove email ownership or university affiliation.
+
+When running the Vite development server (`npm run dev`), the following accounts are available on first sign-in:
+
+| Account | Email | Password |
+| --- | --- | --- |
+| Student | `student@ncsu.edu` | `DemoPass123!` |
+| Professor | `professor@ncsu.edu` | `DemoPass123!` |
+
+These are development-only demo credentials, not production authentication. Newly registered professors and the demo professor start unverified. In development only, a clearly labeled dashboard control previews verified access for the current professor account; it is **not** real university verification. Production builds omit both the demo login accounts and this preview control. There is no real verification workflow in this frontend.
+
+Professor routes require a demo professor session. Unverified professors can see their dashboard but cannot manage listings; verified professors can manage only their own listings. New listings store the demo account ID as their owner. Listings created before accounts were introduced remain in localStorage and visible in Explore, but have no trustworthy owner and therefore cannot be edited or deleted from an account dashboard. Dark and light mode preferences and opportunity data remain local to the browser.
+
+**Security limitation:** This is not secure authentication or authorization. Browser storage and client-side roles, verification, hashes, and guards can all be inspected or modified by the user; hashes can be attacked offline. Never use real passwords or sensitive data. A backend must implement real authentication, email and professor verification, ownership, and authorization before deployment. No backend, database, or API is implemented.

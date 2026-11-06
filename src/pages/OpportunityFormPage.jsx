@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { useOpportunities } from "../context/OpportunityContext.jsx";
-import { useProfessorVerification } from "../context/ProfessorVerificationContext.jsx";
-import { mockProfessor } from "../data/mockProfessor.js";
+import { useAuth } from "../context/AuthContext.jsx";
 import {
   OpportunityApplicationFields,
   OpportunityOverviewFields,
@@ -19,7 +18,7 @@ function toLines(value) {
   return value.split("\n").map((line) => line.trim()).filter(Boolean);
 }
 
-function getInitialForm(opportunity) {
+function getInitialForm(opportunity, email) {
   if (!opportunity) {
     return {
       title: "",
@@ -33,7 +32,7 @@ function getInitialForm(opportunity) {
       responsibilities: "",
       deadline: "",
       applicationUrl: "",
-      contactEmail: mockProfessor.email,
+      contactEmail: email,
     };
   }
 
@@ -49,7 +48,7 @@ function getInitialForm(opportunity) {
     responsibilities: opportunity.responsibilities.join("\n"),
     deadline: opportunity.deadline,
     applicationUrl: opportunity.applicationUrl || "",
-    contactEmail: opportunity.contactEmail || mockProfessor.email,
+    contactEmail: opportunity.contactEmail || email,
   };
 }
 
@@ -57,11 +56,12 @@ function OpportunityFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { professorOpportunities, createOpportunity, updateOpportunity } = useOpportunities();
-  const { isVerified } = useProfessorVerification();
+  const { user } = useAuth();
+  const isVerified = user.verified;
   const existingOpportunity = id
     ? professorOpportunities.find((opportunity) => opportunity.id === id)
     : null;
-  const [form, setForm] = useState(() => getInitialForm(existingOpportunity));
+  const [form, setForm] = useState(() => getInitialForm(existingOpportunity, user.email));
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const isEditing = Boolean(id);
@@ -178,9 +178,9 @@ function OpportunityFormPage() {
       applicationInstructions: form.applicationUrl.trim()
         ? `Use the application link, or contact ${form.contactEmail.trim()} with questions.`
         : `Email ${form.contactEmail.trim()} to ask about applying.`,
-      professor: mockProfessor.name,
-      role: mockProfessor.role,
-      initials: mockProfessor.initials,
+      professor: user.name,
+      role: "Professor",
+      initials: user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase(),
       color: "coral",
       location: "NC State · Raleigh, NC",
       commitment: "Flexible schedule",

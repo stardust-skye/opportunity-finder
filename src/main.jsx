@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import { OpportunityProvider } from "./context/OpportunityContext.jsx";
-import { ProfessorVerificationProvider } from "./context/ProfessorVerificationContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import "./styles.css";
 
@@ -11,11 +11,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <OpportunityProvider>
-          <ProfessorVerificationProvider>
+        <AuthProvider>
+          <OpportunityProvider>
             <App />
-          </ProfessorVerificationProvider>
-        </OpportunityProvider>
+          </OpportunityProvider>
+        </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,

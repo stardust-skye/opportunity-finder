@@ -11,6 +11,7 @@ import {
   writeProfessorOpportunities,
 } from "../data/opportunityStore.js";
 import { opportunities as mockOpportunities } from "../data/opportunities.js";
+import { useAuth } from "./AuthContext.jsx";
 
 const OpportunityContext = createContext(null);
 
@@ -28,6 +29,14 @@ function loadProfessorOpportunities() {
 
 export function OpportunityProvider({ children }) {
   const [storedState, setStoredState] = useState(loadProfessorOpportunities);
+  const { user } = useAuth();
+
+  const requireManager = useCallback(() => {
+    if (user?.role !== "Professor" || !user.verified) {
+      throw new Error("A verified professor account is required to manage opportunities.");
+    }
+    if (storedState.error) throw new Error(storedState.error);
+  }, [user, storedState.error]);
 
   const save = useCallback((nextOpportunities) => {
     writeProfessorOpportunities(nextOpportunities);
@@ -35,9 +44,11 @@ export function OpportunityProvider({ children }) {
   }, []);
 
   const createOpportunity = useCallback((opportunity) => {
+    requireManager();
     const now = new Date();
     const createdOpportunity = {
       ...opportunity,
+      ownerId: user.id,
       id: `professor-${crypto.randomUUID()}`,
       status: "open",
       postedAt: now.toISOString().slice(0, 10),
@@ -45,31 +56,33 @@ export function OpportunityProvider({ children }) {
     };
     save([createdOpportunity, ...storedState.opportunities]);
     return createdOpportunity;
-  }, [save, storedState.opportunities]);
+  }, [requireManager, save, storedState.opportunities, user]);
 
   const updateOpportunity = useCallback((id, updates) => {
-    const exists = storedState.opportunities.some((item) => item.id === id);
+    requireManager();
+    const exists = storedState.opportunities.some((item) => item.id === id && item.ownerId === user.id);
     if (!exists) {
       return false;
     }
 
     save(
       storedState.opportunities.map((item) =>
-        item.id === id ? { ...item, ...updates, id } : item,
+        item.id === id && item.ownerId === user.id ? { ...item, ...updates, id, ownerId: user.id } : item,
       ),
     );
     return true;
-  }, [save, storedState.opportunities]);
+  }, [requireManager, save, storedState.opportunities, user]);
 
   const deleteOpportunity = useCallback((id) => {
-    const exists = storedState.opportunities.some((item) => item.id === id);
+    requireManager();
+    const exists = storedState.opportunities.some((item) => item.id === id && item.ownerId === user.id);
     if (!exists) {
       return false;
     }
 
-    save(storedState.opportunities.filter((item) => item.id !== id));
+    save(storedState.opportunities.filter((item) => item.id !== id || item.ownerId !== user.id));
     return true;
-  }, [save, storedState.opportunities]);
+  }, [requireManager, save, storedState.opportunities, user]);
 
   const setOpportunityStatus = useCallback((id, status) => {
     if (status !== "open" && status !== "closed") {
@@ -92,7 +105,9 @@ export function OpportunityProvider({ children }) {
 
   const value = useMemo(() => ({
     opportunities: [...storedState.opportunities, ...mockOpportunities],
-    professorOpportunities: storedState.opportunities,
+    professorOpportunities: user?.role === "Professor"
+      ? storedState.opportunities.filter((item) => item.ownerId === user.id)
+      : [],
     storageError: storedState.error,
     createOpportunity,
     updateOpportunity,
@@ -104,6 +119,7 @@ export function OpportunityProvider({ children }) {
     setOpportunityStatus,
     storedState,
     updateOpportunity,
+    user,
   ]);
 
   return (

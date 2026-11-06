@@ -1,11 +1,14 @@
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 import Button from "./Button.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  const { user, logout, authError } = useAuth();
 
   function closeMenu() {
     setMenuOpen(false);
@@ -43,21 +46,33 @@ function Navbar() {
             <NavLink onClick={closeMenu} to="/opportunities">
               Explore
             </NavLink>
-            <NavLink onClick={closeMenu} to="/professor/dashboard">
+            {user?.role === "Professor" && <NavLink onClick={closeMenu} to="/professor/dashboard">
               For professors
-            </NavLink>
-            <a href="/#how-it-works" onClick={closeMenu}>
-              About
-            </a>
+            </NavLink>}
           </div>
           <div className="nav-actions">
             <ThemeToggle />
+            {user ? <>
+              <span className="nav-account">{user.role}: {user.name}</span>
+              <button className="nav-login nav-logout" onClick={() => {
+                try {
+                  logout();
+                  setLogoutError("");
+                  closeMenu();
+                } catch (error) {
+                  console.error("Could not end the demo session.", error);
+                  setLogoutError("Could not log out from this browser.");
+                }
+              }} type="button">Logout</button>
+            </> : <>
             <Link className="nav-login" onClick={closeMenu} to="/login">
               Log in
             </Link>
             <Button className="nav-cta" onClick={closeMenu} size="small" to="/register">
-              Join the community <ArrowUpRight aria-hidden="true" size={15} />
+              Sign up <ArrowUpRight aria-hidden="true" size={15} />
             </Button>
+            </>}
+            {(authError || logoutError) && <span role="alert" className="nav-account">{authError || logoutError}</span>}
           </div>
         </nav>
       </div>
