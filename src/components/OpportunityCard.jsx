@@ -1,7 +1,9 @@
 import { ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getCardBadge } from "../utils/cardBadge.js";
 
 function OpportunityCard({ opportunity, featured = false }) {
+  const badge = getCardBadge(opportunity);
   const cardClass = `opportunity-card${featured ? " opportunity-card--featured" : ""}`;
 
   return (
@@ -19,7 +21,10 @@ function OpportunityCard({ opportunity, featured = false }) {
           <span className="card-dot" aria-hidden="true" />
           <span>{opportunity.eyebrow}</span>
         </div>
-        <span className="card-opportunity-type">{opportunity.type}</span>
+        <div className="card-type-row">
+          <span className="card-opportunity-type">{opportunity.type}</span>
+          {badge && <span className={`status-badge status-badge--${badge.tone}`}>{badge.label}</span>}
+        </div>
         <h3>{opportunity.title}</h3>
         <p className="card-description">{opportunity.description}</p>
         <div className="professor-row">
