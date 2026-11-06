@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  PROFESSOR
+}
+
+enum OpportunityStatus {
+  OPEN
+  CLOSED
+}
+
+model User {
+  id                String        @id @default(uuid()) @db.Uuid
+  fullName          String        @db.VarChar(120)
+  email             String        @unique @db.VarChar(254)
+  passwordHash      String
+  role              Role
+  professorVerified Boolean       @default(false)
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @db.Timestamptz(3)
+  opportunities     Opportunity[]
+}
+
+model Opportunity {
+  id                      String            @id @default(uuid()) @db.Uuid
+  title                   String            @db.VarChar(120)
+  description             String            @db.VarChar(1500)
+  category                String            @db.VarChar(120)
+  department              String            @db.VarChar(120)
+  opportunityType         String            @db.VarChar(120)
+  requiredSkills          String[]
+  qualifications          String[]
+  responsibilities        String[]
+  deadline                DateTime          @db.Date
+  applicationUrl          String?           @db.VarChar(2048)
+  contactEmail            String            @db.VarChar(254)
+  status                  OpportunityStatus @default(OPEN)
+  professorId             String            @db.Uuid
+  professor               User              @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  createdAt               DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime          @updatedAt @db.Timestamptz(3)
+  location                String?           @db.VarChar(120)
+  commitment              String?           @db.VarChar(120)
+  objectives              String[]          @default([])
+  applicationInstructions String?           @db.VarChar(1500)
+
+  @@index([status, createdAt])
+  @@index([status, category])
+  @@index([professorId, createdAt])
+}
