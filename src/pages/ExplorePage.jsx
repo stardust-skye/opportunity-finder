@@ -8,6 +8,7 @@ import OpportunityTypeFilter from "../components/OpportunityTypeFilter.jsx";
 import SearchBar from "../components/SearchBar.jsx";
 import SkillsFilter from "../components/SkillsFilter.jsx";
 import SortDropdown from "../components/SortDropdown.jsx";
+import { useOpportunities } from "../context/OpportunityContext.jsx";
 import {
   categories,
   opportunities,
@@ -22,6 +23,7 @@ function toggleValue(values, value) {
 }
 
 function ExplorePage() {
+  const { opportunities } = useOpportunities();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("");
   const [activeSkills, setActiveSkills] = useState([]);
@@ -32,6 +34,9 @@ function ExplorePage() {
   const filteredOpportunities = useMemo(() => {
     const normalizedQuery = search.trim().toLowerCase();
     const filtered = opportunities.filter((opportunity) => {
+      if (opportunity.status === "closed") {
+        return false;
+      }
       const searchableFields = [
         opportunity.title,
         opportunity.description,
@@ -63,7 +68,7 @@ function ExplorePage() {
       }
       return second.postedAt.localeCompare(first.postedAt);
     });
-  }, [activeCategory, activeSkills, activeTypes, search, sortOrder]);
+  }, [activeCategory, activeSkills, activeTypes, opportunities, search, sortOrder]);
 
   function clearFilters() {
     setSearch("");

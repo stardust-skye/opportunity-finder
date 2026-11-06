@@ -1,10 +1,11 @@
 import { ArrowLeft, ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import Button from "../components/Button.jsx";
-import { opportunities } from "../data/opportunities.js";
+import { useOpportunities } from "../context/OpportunityContext.jsx";
 
 function OpportunityDetailsPage() {
   const { id } = useParams();
+  const { opportunities } = useOpportunities();
   const opportunity = opportunities.find((item) => item.id === id);
 
   if (!opportunity) {
@@ -59,10 +60,12 @@ function OpportunityDetailsPage() {
             <p>{opportunity.description}</p>
             <p className="details-department">{opportunity.department}</p>
           </section>
-          <section className="details-section">
-            <h2>Research objectives</h2>
-            <ul>{opportunity.objectives.map((objective) => <li key={objective}>{objective}</li>)}</ul>
-          </section>
+          {opportunity.objectives?.length > 0 && (
+            <section className="details-section">
+              <h2>Research objectives</h2>
+              <ul>{opportunity.objectives.map((objective) => <li key={objective}>{objective}</li>)}</ul>
+            </section>
+          )}
           <section className="details-section">
             <h2>What you’ll do</h2>
             <ul>{opportunity.responsibilities.map((responsibility) => <li key={responsibility}>{responsibility}</li>)}</ul>
@@ -78,17 +81,26 @@ function OpportunityDetailsPage() {
             <span className="section-eyebrow"><span className="eyebrow-line" />TAKE THE NEXT STEP</span>
             <h2>Interested in this work?</h2>
             <p>{opportunity.applicationInstructions}</p>
-            <Button
-              className="details-apply-button"
-              href={opportunity.applicationHref}
-              rel={isEmailLink ? undefined : "noopener noreferrer"}
-              target={isEmailLink ? undefined : "_blank"}
-            >
-              Apply now <ArrowUpRight aria-hidden="true" size={17} />
-            </Button>
-            <p className="details-contact-note">
-              Opens {isEmailLink ? "an email to the professor" : "the application page"}.
-            </p>
+            {opportunity.status === "closed" ? (
+              <p className="details-closed-note">This opportunity is closed and is no longer accepting applications.</p>
+            ) : (
+              <>
+                <Button
+                  className="details-apply-button"
+                  href={opportunity.applicationHref}
+                  rel={isEmailLink ? undefined : "noopener noreferrer"}
+                  target={isEmailLink ? undefined : "_blank"}
+                >
+                  Apply now <ArrowUpRight aria-hidden="true" size={17} />
+                </Button>
+                <p className="details-contact-note">
+                  Opens {isEmailLink ? "an email to the professor" : "the application page"}.
+                </p>
+              </>
+            )}
+            {opportunity.contactEmail && (
+              <p className="details-contact-note">Questions? <a href={`mailto:${opportunity.contactEmail}`}>{opportunity.contactEmail}</a></p>
+            )}
           </div>
           <div className="details-skills">
             <h2>Required skills</h2>

@@ -5,6 +5,8 @@ import ExplorePage from "./pages/ExplorePage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import OpportunityDetailsPage from "./pages/OpportunityDetailsPage.jsx";
+import OpportunityFormPage from "./pages/OpportunityFormPage.jsx";
+import ProfessorDashboardPage from "./pages/ProfessorDashboardPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 
 function App() {
@@ -22,6 +24,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/opportunities" element={<ExplorePage />} />
           <Route path="/opportunities/:id" element={<OpportunityDetailsPage />} />
+          <Route path="/professor/dashboard" element={<ProfessorDashboardPage />} />
+          <Route path="/professor/opportunities/new" element={<OpportunityFormPage />} />
+          <Route path="/professor/opportunities/:id/edit" element={<OpportunityFormPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<LandingPage />} />

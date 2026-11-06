@@ -43,6 +43,9 @@ function Navbar() {
             <NavLink onClick={closeMenu} to="/opportunities">
               Explore
             </NavLink>
+            <NavLink onClick={closeMenu} to="/professor/dashboard">
+              For professors
+            </NavLink>
             <a href="/#how-it-works" onClick={closeMenu}>
               About
             </a>
