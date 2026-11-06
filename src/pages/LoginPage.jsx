@@ -21,12 +21,11 @@ function LoginPage() {
     setMessage("");
     try {
       const user = await login(formData.get("email"), formData.get("password"));
-      const destination = user.role === "Professor"
+      const destination = user.role === "PROFESSOR"
         ? location.state?.from || "/professor/dashboard"
         : "/opportunities";
       navigate(destination, { replace: true });
     } catch (error) {
-      console.error("Demo sign-in failed.", error);
       setMessage(error.message || "Sign-in failed. Please try again.");
     } finally {
       setBusy(false);
@@ -84,14 +83,13 @@ function LoginPage() {
         {message && <p aria-live="polite" className="form-status">{message}</p>}
       </form>
       {location.state?.message && <p className="form-status">{location.state.message}</p>}
-      {import.meta.env.DEV && <p className="auth-note">Development demo: student@ncsu.edu or professor@ncsu.edu, password DemoPass123!. These accounts are not production authentication.</p>}
       <div className="auth-divider"><span />NEW TO THE COMMUNITY?<span /></div>
       <p className="auth-switch">
         <Link to="/register">Create an account <ArrowRight aria-hidden="true" size={15} /></Link>
       </p>
       <p className="auth-note">
         <LockKeyhole aria-hidden="true" size={14} />
-        Demo only: accounts and sign-in are local to this browser and are not secure authentication.
+        Sign in with your NC State email and password.
       </p>
     </AuthShell>
   );

@@ -2,7 +2,7 @@
 
 An opportunity discovery experience for the NC State community. The repository contains a React frontend and a separate Express/PostgreSQL API.
 
-**Day 5 boundary:** The existing frontend is still a standalone localStorage demo; it does not call the backend. Its accounts, verification controls, sessions, and opportunities are not connected to or authorized by the API. Do not deploy the frontend demo as a secure application. Day 6 must replace those services completely with API calls rather than merge the two sources of truth.
+The frontend uses the backend API for accounts, sessions, professor verification, and opportunities. PostgreSQL is the source of truth; the browser stores only the theme preference. Old localStorage demo accounts and listings are no longer read or migrated.
 
 ## Getting started
 
@@ -10,10 +10,11 @@ Requirements: Node.js 20.19+ or 22.12+.
 
 ```powershell
 npm install
+Copy-Item .env.example .env
 npm run dev
 ```
 
-Open the local URL printed by Vite. To create or preview a production build:
+Start PostgreSQL and the backend as described below, then open `http://localhost:5173`. The frontend defaults to `http://localhost:3001`; set `VITE_API_BASE_URL` in the root `.env` to change it, then restart Vite. It is a public build-time setting, not a secret. Use the same hostname (`localhost`, not `127.0.0.1`) for both services, and configure the backend's `FRONTEND_ORIGIN` to match the browser origin exactly. To create or preview a production build:
 
 ```powershell
 npm run build
@@ -25,8 +26,9 @@ npm run preview
 ```text
 src/
   components/  Shared navigation, cards, buttons, filters, and form pieces
-  context/     Theme, demo authentication, and opportunity state
-  data/        Mock listings and the localStorage opportunity-store adapter
+  context/     Theme, server session, and opportunity state
+  data/        Filter options and seed data
+  services/    API client and backend-to-UI opportunity mapping
   pages/       Landing, Explore, opportunity details, professor workspace, and auth routes
   styles.css   Tailwind layers and theme-aware responsive design system
 ```
@@ -34,30 +36,19 @@ src/
 ## Routes
 
 - `/` — landing page and featured opportunities
-- `/opportunities` — searchable, filterable, and sortable sample listings
-- `/opportunities/:id` — opportunity description and mock application/contact link
+- `/opportunities` — searchable, filterable, and sortable open listings
+- `/opportunities/:id` — opportunity description and application/contact link
 - `/professor/dashboard` — professor publishing verification and opportunity management
 - `/professor/opportunities/new` — create an opportunity
 - `/professor/opportunities/:id/edit` — edit a professor-created opportunity
-- `/login` — frontend-only sign-in form
-- `/register` — frontend-only account registration form
+- `/login` — server-backed sign-in form
+- `/register` — account registration form
 
-## Demo authentication and verification
+## Authentication and verification
 
-Register a Student or Professor with an `@ncsu.edu` address and a password of at least eight characters, then sign in. Accounts and sessions exist only in the current browser's localStorage. Passwords are stored as salted PBKDF2-SHA-256 hashes (210,000 iterations), not plaintext. Web Crypto requires HTTPS or localhost. This does **not** prove email ownership or university affiliation.
+Register a Student or Professor with an `@ncsu.edu` address and a password of at least eight characters, then sign in. The backend sets an HttpOnly session cookie, restores the session on refresh, and checks role, verification, and ownership on every protected API request. Professors start unverified; they may view their dashboard, but publishing and management require verification by a trusted administrator. There is no self-verification control. The address format alone does not prove email ownership or university affiliation.
 
-When running the Vite development server (`npm run dev`), the following accounts are available on first sign-in:
-
-| Account | Email | Password |
-| --- | --- | --- |
-| Student | `student@ncsu.edu` | `DemoPass123!` |
-| Professor | `professor@ncsu.edu` | `DemoPass123!` |
-
-These are development-only demo credentials, not production authentication. Newly registered professors and the demo professor start unverified. In development only, a clearly labeled dashboard control previews verified access for the current professor account; it is **not** real university verification. Production builds omit both the demo login accounts and this preview control. There is no real verification workflow in this frontend.
-
-Professor routes require a demo professor session. Unverified professors can see their dashboard but cannot manage listings; verified professors can manage only their own listings. New listings store the demo account ID as their owner. Listings created before accounts were introduced remain in localStorage and visible in Explore, but have no trustworthy owner and therefore cannot be edited or deleted from an account dashboard. Dark and light mode preferences and opportunity data remain local to the browser.
-
-**Frontend security limitation:** The frontend demo is not secure authentication or authorization. Browser storage and client-side roles, verification, hashes, and guards can all be inspected or modified by the user; hashes can be attacked offline. Never use real passwords or sensitive data in the frontend demo.
+Existing browser-only demo records are not imported, since their identities and ownership cannot be trusted. They remain in browser storage until manually removed; they do not affect the application. Search, filters and sorting currently operate client-side after loading all pages of open listings.
 
 ## Backend and PostgreSQL setup
 
@@ -88,7 +79,7 @@ The API listens on port 3001 by default. `db:migrate` applies the checked-in mig
 | Student | `student@ncsu.edu` | `DemoPass123!` |
 | Professor | `professor@ncsu.edu` | `DemoPass123!` |
 
-These are predictable **development-only** credentials. The backend demo professor starts unverified. Development seed accounts are not automatically created at server startup and must never be seeded into production. Existing frontend demo accounts are separate.
+These are predictable **development-only** credentials. The backend demo professor starts unverified. Development seed accounts are not automatically created at server startup and must never be seeded into production.
 
 ### Professor verification
 
@@ -147,7 +138,10 @@ Passwords are hashed with bcrypt; its 72-byte input limit is enforced. Sessions 
 
 Unsafe requests require JSON and reject an `Origin` other than the configured frontend origin; CORS permits credentials only for that origin. Authentication endpoints have a per-process IP rate limit. For multiple instances, use a shared rate-limit store and configure the precise proxy topology before production deployment. This MVP still needs a verified email workflow, operational monitoring, backup/recovery, and deployment-specific security review.
 
-### Automated API tests
+### Automated tests
+
+Run `npm test` from the repository root for frontend API-service and mapping tests.
+The backend integration tests require PostgreSQL:
 
 Create a separate empty PostgreSQL database whose name ends in `_test`. Apply migrations to it, then run:
 

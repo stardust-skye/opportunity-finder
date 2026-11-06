@@ -21,59 +21,59 @@ import { useOpportunities } from "../context/OpportunityContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 function ProfessorDashboardPage() {
-  const { professorOpportunities, storageError, deleteOpportunity, setOpportunityStatus } =
+  const { professorOpportunities, professorLoading, professorError, refreshOwn, deleteOpportunity, setOpportunityStatus } =
     useOpportunities();
-  const { user, setDemoVerification } = useAuth();
-  const isVerified = user.verified;
-  const initials = user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+  const { user } = useAuth();
+  const isVerified = user.professorVerified;
+  const initials = user.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const [pendingDelete, setPendingDelete] = useState(null);
   const [actionError, setActionError] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+  const [busy, setBusy] = useState(false);
   const location = useLocation();
 
   const openCount = professorOpportunities.filter((item) => item.status !== "closed").length;
   const closedCount = professorOpportunities.length - openCount;
 
-  function changeStatus(opportunity) {
+  async function changeStatus(opportunity) {
+    setActionMessage("");
     if (!isVerified) {
       setActionError("Professor verification is required to manage your listings.");
       return;
     }
 
     try {
-      const updated = setOpportunityStatus(
+      setBusy(true);
+      await setOpportunityStatus(
         opportunity.id,
         opportunity.status === "closed" ? "open" : "closed",
       );
-      if (!updated) throw new Error("This opportunity is no longer available to manage.");
       setActionError("");
+      setActionMessage(opportunity.status === "closed" ? "Opportunity reopened." : "Opportunity closed.");
     } catch (error) {
       setActionError(error.message);
+    } finally {
+      setBusy(false);
     }
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
+    setActionMessage("");
     if (!isVerified || !pendingDelete) {
       setActionError("Professor verification is required to manage your listings.");
       return;
     }
 
     try {
-      if (!deleteOpportunity(pendingDelete.id)) {
-        throw new Error("This opportunity is no longer available to delete.");
-      }
+      setBusy(true);
+      await deleteOpportunity(pendingDelete.id);
       setPendingDelete(null);
       setActionError("");
+      setActionMessage("Opportunity deleted.");
     } catch (error) {
       setActionError(error.message);
-    }
-  }
-
-  function toggleVerification() {
-    try {
-      setDemoVerification(!isVerified);
-      setActionError("");
-    } catch (error) {
-      setActionError(error.message);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -83,12 +83,12 @@ function ProfessorDashboardPage() {
         <div className="content-width professor-hero-inner">
           <div className="professor-welcome">
             <span className="section-eyebrow"><span className="eyebrow-line" />FACULTY WORKSPACE</span>
-            <h1>Good to see you,<br /><span>{user.name}.</span></h1>
+            <h1>Good to see you,<br /><span>{user.fullName}.</span></h1>
             <p>Make room for the next curious mind to find your work.</p>
             <div className="professor-profile">
               <span aria-hidden="true" className="professor-profile-avatar">{initials}</span>
               <span>
-                <strong>{user.name}</strong>
+                <strong>{user.fullName}</strong>
                 <span>{user.email}</span>
               </span>
             </div>
@@ -104,31 +104,26 @@ function ProfessorDashboardPage() {
                 ? "You can publish and manage research opportunities."
                 : "Your dashboard is ready. Publishing opens after your professor status is verified."}
             </p>
-            {import.meta.env.DEV && <div aria-label="Mock verification preview controls" className="verification-preview">
-              <span>DEVELOPMENT TEST ONLY · NOT UNIVERSITY VERIFICATION</span>
-              <button onClick={toggleVerification} type="button">
-                {isVerified ? "Reset to unverified" : "Preview verified access"}
-              </button>
-            </div>}
           </div>
         </div>
       </header>
 
       <div className="professor-content content-width">
-        {location.state?.message && (
+        {!actionError && (actionMessage || location.state?.message) && (
           <div aria-live="polite" className="professor-success">
             <CircleCheck aria-hidden="true" size={18} />
-            {location.state.message}
+            {actionMessage || location.state.message}
           </div>
         )}
-        {(storageError || actionError) && (
+        {(professorError || actionError) && (
           <div aria-live="assertive" className="professor-alert">
             <CircleAlert aria-hidden="true" size={17} />
-            {actionError || storageError}
+            {actionError || professorError}
+            {professorError && <button onClick={refreshOwn} type="button">Try again</button>}
           </div>
         )}
 
-        <section aria-label="Opportunity statistics" className="professor-stats">
+        {!professorLoading && !professorError && <section aria-label="Opportunity statistics" className="professor-stats">
           <article className="professor-stat">
             <span className="professor-stat-icon"><BriefcaseBusiness aria-hidden="true" size={17} /></span>
             <span className="professor-stat-label">TOTAL POSTED</span>
@@ -147,7 +142,7 @@ function ProfessorDashboardPage() {
             <strong>{closedCount}</strong>
             <span className="professor-stat-note">No longer accepting</span>
           </article>
-        </section>
+        </section>}
 
         <section aria-labelledby="manage-heading" className="manage-section">
           <div className="manage-heading-row">
@@ -179,7 +174,7 @@ function ProfessorDashboardPage() {
             </div>
           )}
 
-          {professorOpportunities.length === 0 ? (
+          {professorLoading ? <p role="status">Loading your opportunities...</p> : professorError ? null : professorOpportunities.length === 0 ? (
             <div className="manage-empty">
               <span className="manage-empty-icon"><BriefcaseBusiness aria-hidden="true" size={21} /></span>
               <h3>Your next opportunity starts here.</h3>
@@ -220,12 +215,12 @@ function ProfessorDashboardPage() {
                         <Pencil aria-hidden="true" size={16} /><span>Edit</span>
                       </Link>
                     )}
-                    <Link aria-label={`View ${opportunity.title}`} className="icon-action" to={`/opportunities/${opportunity.id}`} title="View public listing">
+                    {opportunity.status !== "closed" && <Link aria-label={`View ${opportunity.title}`} className="icon-action" to={`/opportunities/${opportunity.id}`} title="View public listing">
                       <ExternalLink aria-hidden="true" size={16} /><span>Preview</span>
-                    </Link>
+                    </Link>}
                     {isVerified ? (
                       <>
-                        <button className="icon-action" onClick={() => changeStatus(opportunity)} type="button">
+                        <button className="icon-action" disabled={busy} onClick={() => changeStatus(opportunity)} type="button">
                           {opportunity.status === "closed"
                             ? <RotateCcw aria-hidden="true" size={16} />
                             : <CircleX aria-hidden="true" size={16} />}
@@ -234,6 +229,7 @@ function ProfessorDashboardPage() {
                         <button
                           aria-label={`Delete ${opportunity.title}`}
                           className="icon-action icon-action--danger"
+                          disabled={busy}
                           onClick={() => setPendingDelete(opportunity)}
                           type="button"
                         >
@@ -248,7 +244,7 @@ function ProfessorDashboardPage() {
                     <div aria-label={`Confirm deleting ${opportunity.title}`} className="delete-confirmation" role="alertdialog">
                       <span>Delete this opportunity? This can’t be undone.</span>
                       <button className="delete-confirmation-cancel" onClick={() => setPendingDelete(null)} type="button">Keep it</button>
-                      <button className="delete-confirmation-accept" onClick={confirmDelete} type="button">Delete opportunity</button>
+                      <button className="delete-confirmation-accept" disabled={busy} onClick={confirmDelete} type="button">Delete opportunity</button>
                     </div>
                   )}
                 </article>
@@ -257,7 +253,7 @@ function ProfessorDashboardPage() {
           )}
           <p className="managed-disclaimer">
             <span className="status-pulse" />
-            Only opportunities published by this demo professor account can be managed here.
+            Only opportunities published by your professor account can be managed here.
           </p>
         </section>
       </div>

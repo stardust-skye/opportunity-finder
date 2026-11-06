@@ -1,138 +1,94 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import {
-  readProfessorOpportunities,
-  writeProfessorOpportunities,
-} from "../data/opportunityStore.js";
-import { opportunities as mockOpportunities } from "../data/opportunities.js";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext.jsx";
+import { apiRequest } from "../services/api.js";
+import { listOpportunities, saveOpportunity } from "../services/opportunities.js";
 
 const OpportunityContext = createContext(null);
 
-function loadProfessorOpportunities() {
-  try {
-    return { opportunities: readProfessorOpportunities(), error: "" };
-  } catch (error) {
-    console.error("Could not load professor opportunities from localStorage.", error);
-    return {
-      opportunities: [],
-      error: "Saved opportunities could not be loaded. Clear the damaged saved data to continue.",
-    };
-  }
-}
-
 export function OpportunityProvider({ children }) {
-  const [storedState, setStoredState] = useState(loadProfessorOpportunities);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const [publicState, setPublicState] = useState({ items: [], loading: true, error: "" });
+  const [ownState, setOwnState] = useState({ items: [], loading: false, error: "", ownerId: null });
+  const publicGeneration = useRef(0);
+  const ownGeneration = useRef(0);
 
-  const requireManager = useCallback(() => {
-    if (user?.role !== "Professor" || !user.verified) {
-      throw new Error("A verified professor account is required to manage opportunities.");
+  const refreshPublic = useCallback(async () => {
+    const current = ++publicGeneration.current;
+    setPublicState((state) => ({ ...state, loading: true, error: "" }));
+    try {
+      const items = await listOpportunities("/api/opportunities");
+      if (current === publicGeneration.current) setPublicState({ items, loading: false, error: "" });
+    } catch (error) {
+      if (current === publicGeneration.current) setPublicState({ items: [], loading: false, error: error.message });
     }
-    if (storedState.error) throw new Error(storedState.error);
-  }, [user, storedState.error]);
-
-  const save = useCallback((nextOpportunities) => {
-    writeProfessorOpportunities(nextOpportunities);
-    setStoredState({ opportunities: nextOpportunities, error: "" });
   }, []);
 
-  const createOpportunity = useCallback((opportunity) => {
-    requireManager();
-    const now = new Date();
-    const createdOpportunity = {
-      ...opportunity,
-      ownerId: user.id,
-      id: `professor-${crypto.randomUUID()}`,
-      status: "open",
-      postedAt: now.toISOString().slice(0, 10),
-      createdAt: now.toISOString(),
-    };
-    save([createdOpportunity, ...storedState.opportunities]);
-    return createdOpportunity;
-  }, [requireManager, save, storedState.opportunities, user]);
-
-  const updateOpportunity = useCallback((id, updates) => {
-    requireManager();
-    const exists = storedState.opportunities.some((item) => item.id === id && item.ownerId === user.id);
-    if (!exists) {
-      return false;
+  const refreshOwn = useCallback(async () => {
+    const current = ++ownGeneration.current;
+    if (authLoading || user?.role !== "PROFESSOR") {
+      setOwnState({ items: [], loading: false, error: "", ownerId: null });
+      return;
     }
-
-    save(
-      storedState.opportunities.map((item) =>
-        item.id === id && item.ownerId === user.id ? { ...item, ...updates, id, ownerId: user.id } : item,
-      ),
-    );
-    return true;
-  }, [requireManager, save, storedState.opportunities, user]);
-
-  const deleteOpportunity = useCallback((id) => {
-    requireManager();
-    const exists = storedState.opportunities.some((item) => item.id === id && item.ownerId === user.id);
-    if (!exists) {
-      return false;
+    setOwnState({ items: [], loading: true, error: "", ownerId: user.id });
+    try {
+      const items = await listOpportunities("/api/professor/opportunities", { sessionRequired: true });
+      if (current === ownGeneration.current) setOwnState({ items, loading: false, error: "", ownerId: user.id });
+    } catch (error) {
+      if (current === ownGeneration.current) setOwnState({ items: [], loading: false, error: error.message, ownerId: user.id });
     }
-
-    save(storedState.opportunities.filter((item) => item.id !== id || item.ownerId !== user.id));
-    return true;
-  }, [requireManager, save, storedState.opportunities, user]);
-
-  const setOpportunityStatus = useCallback((id, status) => {
-    if (status !== "open" && status !== "closed") {
-      throw new Error(`Unsupported opportunity status: ${status}`);
-    }
-
-    return updateOpportunity(id, { status });
-  }, [updateOpportunity]);
+  }, [authLoading, user?.id, user?.role]);
 
   useEffect(() => {
-    function syncFromStorage(event) {
-      if (event.key === null || event.key === "opportunity-finder-professor-opportunities") {
-        setStoredState(loadProfessorOpportunities());
-      }
-    }
+    refreshPublic();
+    return () => { publicGeneration.current += 1; };
+  }, [refreshPublic]);
 
-    window.addEventListener("storage", syncFromStorage);
-    return () => window.removeEventListener("storage", syncFromStorage);
-  }, []);
+  useEffect(() => {
+    refreshOwn();
+    return () => { ownGeneration.current += 1; };
+  }, [refreshOwn]);
+
+  const refreshAfterMutation = useCallback(async () => {
+    await Promise.all([refreshOwn(), refreshPublic()]);
+  }, [refreshOwn, refreshPublic]);
+
+  const createOpportunity = useCallback(async (input) => {
+    await saveOpportunity(null, input);
+    await refreshAfterMutation();
+  }, [refreshAfterMutation]);
+  const updateOpportunity = useCallback(async (id, input) => {
+    await saveOpportunity(id, input);
+    await refreshAfterMutation();
+  }, [refreshAfterMutation]);
+  const setOpportunityStatus = useCallback(async (id, status) => {
+    await apiRequest(`/api/professor/opportunities/${encodeURIComponent(id)}/status`, {
+      method: "PATCH", body: { status: status.toUpperCase() }, sessionRequired: true,
+    });
+    await refreshAfterMutation();
+  }, [refreshAfterMutation]);
+  const deleteOpportunity = useCallback(async (id) => {
+    await apiRequest(`/api/professor/opportunities/${encodeURIComponent(id)}`, {
+      method: "DELETE", body: {}, sessionRequired: true,
+    });
+    await refreshAfterMutation();
+  }, [refreshAfterMutation]);
 
   const value = useMemo(() => ({
-    opportunities: [...storedState.opportunities, ...mockOpportunities],
-    professorOpportunities: user?.role === "Professor"
-      ? storedState.opportunities.filter((item) => item.ownerId === user.id)
-      : [],
-    storageError: storedState.error,
-    createOpportunity,
-    updateOpportunity,
-    deleteOpportunity,
-    setOpportunityStatus,
-  }), [
-    createOpportunity,
-    deleteOpportunity,
-    setOpportunityStatus,
-    storedState,
-    updateOpportunity,
-    user,
-  ]);
-
-  return (
-    <OpportunityContext.Provider value={value}>
-      {children}
-    </OpportunityContext.Provider>
-  );
+    opportunities: publicState.items,
+    opportunitiesLoading: publicState.loading,
+    opportunitiesError: publicState.error,
+    refreshPublic,
+    professorOpportunities: ownState.ownerId === user?.id ? ownState.items : [],
+    professorLoading: ownState.loading || (user?.role === "PROFESSOR" && ownState.ownerId !== user.id),
+    professorError: ownState.ownerId === user?.id ? ownState.error : "",
+    refreshOwn,
+    createOpportunity, updateOpportunity, deleteOpportunity, setOpportunityStatus,
+  }), [publicState, ownState, user, refreshPublic, refreshOwn, createOpportunity, updateOpportunity, deleteOpportunity, setOpportunityStatus]);
+  return <OpportunityContext.Provider value={value}>{children}</OpportunityContext.Provider>;
 }
 
 export function useOpportunities() {
   const context = useContext(OpportunityContext);
-  if (!context) {
-    throw new Error("useOpportunities must be used within an OpportunityProvider.");
-  }
+  if (!context) throw new Error("useOpportunities must be used within an OpportunityProvider.");
   return context;
 }

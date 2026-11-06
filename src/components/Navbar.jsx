@@ -1,6 +1,6 @@
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import Button from "./Button.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
@@ -8,7 +8,8 @@ import ThemeToggle from "./ThemeToggle.jsx";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState("");
-  const { user, logout, authError } = useAuth();
+  const { user, loading, logout, authError, restore } = useAuth();
+  const navigate = useNavigate();
 
   function closeMenu() {
     setMenuOpen(false);
@@ -46,22 +47,22 @@ function Navbar() {
             <NavLink onClick={closeMenu} to="/opportunities">
               Explore
             </NavLink>
-            {user?.role === "Professor" && <NavLink onClick={closeMenu} to="/professor/dashboard">
+            {user?.role === "PROFESSOR" && <NavLink onClick={closeMenu} to="/professor/dashboard">
               For professors
             </NavLink>}
           </div>
           <div className="nav-actions">
             <ThemeToggle />
-            {user ? <>
-              <span className="nav-account">{user.role}: {user.name}</span>
-              <button className="nav-login nav-logout" onClick={() => {
+            {loading ? <span className="nav-account" role="status">Checking session...</span> : user ? <>
+              <span className="nav-account">{user.role === "PROFESSOR" ? "Professor" : "Student"}: {user.fullName}</span>
+              <button className="nav-login nav-logout" onClick={async () => {
                 try {
-                  logout();
+                  await logout();
                   setLogoutError("");
                   closeMenu();
+                  navigate("/");
                 } catch (error) {
-                  console.error("Could not end the demo session.", error);
-                  setLogoutError("Could not log out from this browser.");
+                  setLogoutError(error.message);
                 }
               }} type="button">Logout</button>
             </> : <>
@@ -73,6 +74,7 @@ function Navbar() {
             </Button>
             </>}
             {(authError || logoutError) && <span role="alert" className="nav-account">{authError || logoutError}</span>}
+            {authError && <button className="nav-login nav-logout" onClick={restore} type="button">Retry session</button>}
           </div>
         </nav>
       </div>

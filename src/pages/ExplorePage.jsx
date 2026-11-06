@@ -11,7 +11,6 @@ import SortDropdown from "../components/SortDropdown.jsx";
 import { useOpportunities } from "../context/OpportunityContext.jsx";
 import {
   categories,
-  opportunities,
   opportunityTypes,
   skillOptions,
 } from "../data/opportunities.js";
@@ -23,13 +22,17 @@ function toggleValue(values, value) {
 }
 
 function ExplorePage() {
-  const { opportunities } = useOpportunities();
+  const { opportunities, opportunitiesLoading, opportunitiesError, refreshPublic } = useOpportunities();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("");
   const [activeSkills, setActiveSkills] = useState([]);
   const [activeTypes, setActiveTypes] = useState([]);
   const [skillsOpen, setSkillsOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState("newest");
+
+  const availableCategories = useMemo(() => [...new Set([...categories, ...opportunities.map((item) => item.category)])], [opportunities]);
+  const availableSkills = useMemo(() => [...new Set([...skillOptions, ...opportunities.flatMap((item) => item.skills)])], [opportunities]);
+  const availableTypes = useMemo(() => [...new Set([...opportunityTypes, ...opportunities.map((item) => item.type)])], [opportunities]);
 
   const filteredOpportunities = useMemo(() => {
     const normalizedQuery = search.trim().toLowerCase();
@@ -123,7 +126,7 @@ function ExplorePage() {
           <span className="filter-label">OPPORTUNITY CATEGORIES</span>
           <CategoryFilter
             activeCategory={activeCategory}
-            categories={categories}
+            categories={availableCategories}
             onSelect={setActiveCategory}
           />
         </div>
@@ -136,7 +139,7 @@ function ExplorePage() {
             <SkillsFilter
               activeSkills={activeSkills}
               onToggle={(skill) => setActiveSkills((current) => toggleValue(current, skill))}
-              skills={skillOptions}
+              skills={availableSkills}
             />
           </div>
         )}
@@ -145,7 +148,7 @@ function ExplorePage() {
           <OpportunityTypeFilter
             activeTypes={activeTypes}
             onToggle={(type) => setActiveTypes((current) => toggleValue(current, type))}
-            types={opportunityTypes}
+            types={availableTypes}
           />
         </div>
         <div className="results-heading">
@@ -155,7 +158,7 @@ function ExplorePage() {
           </div>
           <div className="results-controls">
             <span aria-live="polite" className="results-count">
-              {filteredOpportunities.length} {filteredOpportunities.length === 1 ? "opportunity" : "opportunities"}
+              {!opportunitiesLoading && !opportunitiesError && `${filteredOpportunities.length} ${filteredOpportunities.length === 1 ? "opportunity" : "opportunities"}`}
             </span>
             <SortDropdown onChange={setSortOrder} value={sortOrder} />
           </div>
@@ -171,7 +174,9 @@ function ExplorePage() {
           onRemoveType={(type) => setActiveTypes((current) => current.filter((value) => value !== type))}
           search={search}
         />
-        {filteredOpportunities.length > 0 ? (
+        {opportunitiesLoading ? <p role="status">Loading opportunities...</p> : opportunitiesError ? (
+          <div role="alert"><p>{opportunitiesError}</p><button onClick={refreshPublic} type="button">Try again</button></div>
+        ) : filteredOpportunities.length > 0 ? (
           <div className="opportunity-grid">
             {filteredOpportunities.map((opportunity) => (
               <OpportunityCard key={opportunity.id} opportunity={opportunity} />

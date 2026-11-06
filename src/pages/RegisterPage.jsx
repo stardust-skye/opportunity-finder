@@ -31,9 +31,8 @@ function RegisterPage() {
         password: formData.get("password"),
         role: formData.get("accountType"),
       });
-      navigate("/login", { state: { message: "Demo account created. Please sign in." } });
+      navigate("/login", { state: { message: "Account created. Please sign in." } });
     } catch (error) {
-      console.error("Demo registration failed.", error);
       setMessage(error.message || "Account creation failed. Please try again.");
     } finally {
       setBusy(false);
@@ -128,7 +127,7 @@ function RegisterPage() {
       </p>
       <p className="auth-note">
         <ShieldCheck aria-hidden="true" size={15} />
-        Demo only: accounts are local to this browser, and email does not verify affiliation or professor status.
+        An email address alone does not verify affiliation or professor status.
       </p>
     </AuthShell>
   );

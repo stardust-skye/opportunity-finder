@@ -1,12 +1,28 @@
 import { ArrowLeft, ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Button from "../components/Button.jsx";
-import { useOpportunities } from "../context/OpportunityContext.jsx";
+import { getOpportunity } from "../services/opportunities.js";
 
 function OpportunityDetailsPage() {
   const { id } = useParams();
-  const { opportunities } = useOpportunities();
-  const opportunity = opportunities.find((item) => item.id === id);
+  const [state, setState] = useState({ opportunity: null, loading: true, error: "" });
+  useEffect(() => {
+    const controller = new AbortController();
+    setState({ opportunity: null, loading: true, error: "" });
+    getOpportunity(id, controller.signal).then(
+      (opportunity) => setState({ opportunity, loading: false, error: "" }),
+      (error) => {
+        if (error.name !== "AbortError") {
+          setState({ opportunity: null, loading: false, error: error.status === 404 || error.status === 400 ? "" : error.message });
+        }
+      },
+    );
+    return () => controller.abort();
+  }, [id]);
+  const { opportunity, loading, error } = state;
+  if (loading) return <p className="content-width" role="status">Loading opportunity...</p>;
+  if (error) return <section className="opportunity-not-found content-width"><p role="alert">{error}</p><Button to="/opportunities">Back to opportunities</Button></section>;
 
   if (!opportunity) {
     return (

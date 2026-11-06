@@ -54,16 +54,32 @@ function getInitialForm(opportunity, email) {
 
 function OpportunityFormPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { professorOpportunities, createOpportunity, updateOpportunity } = useOpportunities();
+  const { professorOpportunities, professorLoading, professorError, refreshOwn } = useOpportunities();
   const { user } = useAuth();
-  const isVerified = user.verified;
-  const existingOpportunity = id
-    ? professorOpportunities.find((opportunity) => opportunity.id === id)
-    : null;
+  const existingOpportunity = id ? professorOpportunities.find((opportunity) => opportunity.id === id) : null;
+
+  if (id && professorLoading) return <p className="content-width" role="status">Loading your opportunity...</p>;
+  if (id && professorError) return <div className="content-width"><p role="alert">{professorError}</p><button onClick={refreshOwn} type="button">Try again</button></div>;
+  if (id && !existingOpportunity) {
+    return (
+      <section className="professor-form-page content-width">
+        <span className="section-eyebrow"><span className="eyebrow-line" />LISTING NOT FOUND</span>
+        <h1>This opportunity isn’t available to edit.</h1>
+        <Button to="/professor/dashboard"><ArrowLeft aria-hidden="true" size={16} /> Back to dashboard</Button>
+      </section>
+    );
+  }
+  return <OpportunityForm key={id || "new"} id={id} existingOpportunity={existingOpportunity} user={user} />;
+}
+
+function OpportunityForm({ id, existingOpportunity, user }) {
+  const navigate = useNavigate();
+  const { createOpportunity, updateOpportunity } = useOpportunities();
+  const isVerified = user.professorVerified;
   const [form, setForm] = useState(() => getInitialForm(existingOpportunity, user.email));
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
+  const [busy, setBusy] = useState(false);
   const isEditing = Boolean(id);
 
   function updateField(name, value) {
@@ -140,7 +156,7 @@ function OpportunityFormPage() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setSubmitError("");
     if (!isVerified) {
@@ -152,50 +168,30 @@ function OpportunityFormPage() {
       return;
     }
 
-    const deadlineDate = new Date(`${form.deadline}T12:00:00`);
     const opportunity = {
       title: form.title.trim(),
       description: form.description.trim(),
       category: form.category,
       department: form.department.trim(),
-      eyebrow: form.department.split("·")[0].trim() || form.department.trim(),
-      type: form.type,
-      skills: form.skills,
+      opportunityType: form.type,
+      requiredSkills: form.skills,
       qualifications: toLines(form.qualifications),
       responsibilities: toLines(form.responsibilities),
-      objectives: [],
+      objectives: existingOpportunity?.objectives || [],
       deadline: form.deadline,
-      deadlineLabel: new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }).format(deadlineDate),
-      applicationUrl: form.applicationUrl.trim(),
+      applicationUrl: form.applicationUrl.trim() || null,
       contactEmail: form.contactEmail.trim(),
-      applicationHref:
-        form.applicationUrl.trim() ||
-        `mailto:${encodeURIComponent(form.contactEmail.trim())}?subject=${encodeURIComponent(form.title.trim())}`,
-      applicationInstructions: form.applicationUrl.trim()
-        ? `Use the application link, or contact ${form.contactEmail.trim()} with questions.`
-        : `Email ${form.contactEmail.trim()} to ask about applying.`,
-      professor: user.name,
-      role: "Professor",
-      initials: user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase(),
-      color: "coral",
-      location: "NC State · Raleigh, NC",
-      commitment: "Flexible schedule",
-      status: existingOpportunity?.status || "open",
+      applicationInstructions: existingOpportunity?.sourceApplicationInstructions || null,
+      location: existingOpportunity?.sourceLocation || null,
+      commitment: existingOpportunity?.sourceCommitment || null,
     };
 
     try {
+      setBusy(true);
       if (isEditing) {
-        const updated = updateOpportunity(id, opportunity);
-        if (!updated) {
-          setSubmitError("This opportunity is no longer available to edit.");
-          return;
-        }
+        await updateOpportunity(id, opportunity);
       } else {
-        createOpportunity(opportunity);
+        await createOpportunity(opportunity);
       }
       navigate("/professor/dashboard", {
         state: {
@@ -206,17 +202,9 @@ function OpportunityFormPage() {
       });
     } catch (error) {
       setSubmitError(error.message || "Your opportunity could not be saved.");
+    } finally {
+      setBusy(false);
     }
-  }
-
-  if (isEditing && !existingOpportunity) {
-    return (
-      <section className="professor-form-page content-width">
-        <span className="section-eyebrow"><span className="eyebrow-line" />LISTING NOT FOUND</span>
-        <h1>This opportunity isn’t available to edit.</h1>
-        <Button to="/professor/dashboard"><ArrowLeft aria-hidden="true" size={16} /> Back to dashboard</Button>
-      </section>
-    );
   }
 
   return (
@@ -263,7 +251,7 @@ function OpportunityFormPage() {
         <div className="professor-form-actions">
           <Button to="/professor/dashboard" variant="secondary">Cancel</Button>
           {isVerified ? (
-            <Button type="submit">
+            <Button disabled={busy} type="submit">
               {isEditing ? "Save changes" : "Publish opportunity"} <ArrowRight aria-hidden="true" size={16} />
             </Button>
           ) : (

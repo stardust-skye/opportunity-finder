@@ -2,11 +2,12 @@ import { ArrowDown, ArrowRight, ArrowUpRight, FlaskConical, Microscope, ScanLine
 import { Link } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import OpportunityCard from "../components/OpportunityCard.jsx";
-import { categories, opportunities } from "../data/opportunities.js";
-
-const featuredOpportunities = opportunities.slice(0, 3);
+import { categories } from "../data/opportunities.js";
+import { useOpportunities } from "../context/OpportunityContext.jsx";
 
 function LandingPage() {
+  const { opportunities, opportunitiesLoading, opportunitiesError, refreshPublic } = useOpportunities();
+  const featuredOpportunities = opportunities.slice(0, 3);
   return (
     <>
       <section className="hero-section">
@@ -86,11 +87,13 @@ function LandingPage() {
               All opportunities <ArrowUpRight aria-hidden="true" size={17} />
             </Link>
           </div>
-          <div className="opportunity-grid opportunity-grid--featured">
+          {opportunitiesLoading ? <p role="status">Loading opportunities...</p> : opportunitiesError ? (
+            <div role="alert"><p>{opportunitiesError}</p><button onClick={refreshPublic} type="button">Try again</button></div>
+          ) : featuredOpportunities.length === 0 ? <p>No open opportunities yet.</p> : <div className="opportunity-grid opportunity-grid--featured">
             {featuredOpportunities.map((opportunity) => (
               <OpportunityCard featured key={opportunity.id} opportunity={opportunity} />
             ))}
-          </div>
+          </div>}
         </div>
       </section>
 
