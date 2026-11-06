@@ -21,7 +21,7 @@ function Field({ id, label, error, optional = false, wide = false, children, hin
       </label>
       {children}
       {error && <span className="professor-field-error" id={`${id}-error`}>{error}</span>}
-      {!error && hint && <span className="professor-field-hint">{hint}</span>}
+      {!error && hint && <span className="professor-field-hint" id={`${id}-hint`}>{hint}</span>}
     </div>
   );
 }
@@ -77,6 +77,28 @@ export function OpportunityOverviewFields({ errors, form, onChange }) {
           onChange={(event) => onChange("department", event.target.value)}
           placeholder="e.g. College of Engineering · Human-Centered Computing"
           value={form.department}
+        />
+      </Field>
+      <Field error={errors.location} id="opportunity-location" label="Location" optional>
+        <input
+          aria-describedby={errors.location ? "opportunity-location-error" : undefined}
+          aria-invalid={Boolean(errors.location)}
+          id="opportunity-location"
+          maxLength={120}
+          onChange={(event) => onChange("location", event.target.value)}
+          placeholder="e.g. Raleigh, NC or remote"
+          value={form.location}
+        />
+      </Field>
+      <Field error={errors.hourlyPay} id="opportunity-hourly-pay" label="Pay per hour (USD)" optional hint="Leave blank if unspecified; enter 0 for unpaid.">
+        <input
+          aria-describedby={errors.hourlyPay ? "opportunity-hourly-pay-error" : "opportunity-hourly-pay-hint"}
+          aria-invalid={Boolean(errors.hourlyPay)}
+          id="opportunity-hourly-pay"
+          inputMode="decimal"
+          onChange={(event) => onChange("hourlyPay", event.target.value)}
+          placeholder="e.g. 20.00"
+          value={form.hourlyPay}
         />
       </Field>
       <Field error={errors.description} id="opportunity-description" label="Description" wide>

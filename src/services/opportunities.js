@@ -18,7 +18,7 @@ export function toOpportunity(item) {
     role: "Professor",
     initials: professor.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase(),
     color: "coral",
-    location: item.location || "NC State",
+    location: item.location || "Location not specified",
     commitment: item.commitment || "Contact professor for details",
     status: item.status.toLowerCase(),
     applicationHref: item.applicationUrl || `mailto:${encodeURIComponent(item.contactEmail)}?subject=${encodeURIComponent(item.title)}`,

@@ -7,7 +7,7 @@ function startOfDay(date) {
 }
 
 function parseDate(isoDate) {
-  const [year, month, day] = isoDate.split("-").map(Number);
+  const [year, month, day] = isoDate.slice(0, 10).split("-").map(Number);
   return new Date(year, month - 1, day);
 }
 

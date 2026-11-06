@@ -1,8 +1,10 @@
-import { ArrowLeft, ArrowUpRight, CalendarDays, Clock3, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CalendarDays, CircleDollarSign, Clock3, MapPin } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Button from "../components/Button.jsx";
 import { getOpportunity } from "../services/opportunities.js";
+import { formatHourlyPay } from "../utils/formatHourlyPay.js";
+import { getCardBadge } from "../utils/cardBadge.js";
 
 function OpportunityDetailsPage() {
   const { id } = useParams();
@@ -38,6 +40,7 @@ function OpportunityDetailsPage() {
   }
 
   const isEmailLink = opportunity.applicationHref.startsWith("mailto:");
+  const badge = getCardBadge(opportunity);
 
   return (
     <article className="opportunity-details-page">
@@ -49,6 +52,7 @@ function OpportunityDetailsPage() {
           <div className="details-category-row">
             <span className="category-badge">{opportunity.category}</span>
             <span className="details-type">{opportunity.type}</span>
+            {badge && <span className={`status-badge status-badge--${badge.tone}`}>{badge.label}</span>}
           </div>
           <h1>{opportunity.title}</h1>
           <div className="details-professor">
@@ -62,6 +66,7 @@ function OpportunityDetailsPage() {
           </div>
           <div className="details-meta">
             <span><MapPin aria-hidden="true" size={16} />{opportunity.location}</span>
+            <span><CircleDollarSign aria-hidden="true" size={16} />{formatHourlyPay(opportunity.hourlyPayCents)}</span>
             <span><Clock3 aria-hidden="true" size={16} />{opportunity.commitment}</span>
             <span><CalendarDays aria-hidden="true" size={16} />Apply by {opportunity.deadlineLabel}</span>
           </div>

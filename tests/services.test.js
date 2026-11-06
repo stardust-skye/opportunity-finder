@@ -2,6 +2,8 @@ import { afterEach, test } from "node:test";
 import assert from "node:assert/strict";
 import { advanceSessionGeneration, apiRequest, fetchAllPages } from "../src/services/api.js";
 import { toOpportunity } from "../src/services/opportunities.js";
+import { formatHourlyPay } from "../src/utils/formatHourlyPay.js";
+import { getCardBadge } from "../src/utils/cardBadge.js";
 
 const originalFetch = globalThis.fetch;
 const originalWindow = globalThis.window;
@@ -74,5 +76,19 @@ test("maps database opportunity fields and preserves optional edit values", () =
   assert.equal(result.professor, "Jane Doe");
   assert.equal(result.status, "open");
   assert.equal(result.sourceLocation, null);
+  assert.equal(result.location, "Location not specified");
   assert.match(result.applicationHref, /^mailto:jane%40ncsu\.edu/);
+});
+
+test("hourly pay distinguishes missing values and zero from paid rates", () => {
+  assert.equal(formatHourlyPay(null), "Pay not specified");
+  assert.equal(formatHourlyPay(undefined), "Pay not specified");
+  assert.equal(formatHourlyPay(0), "$0.00 / hour");
+  assert.equal(formatHourlyPay(2050), "$20.50 / hour");
+});
+
+test("status badges handle database timestamps as well as date-only deadlines", () => {
+  const today = new Date(2026, 0, 10);
+  assert.deepEqual(getCardBadge({ deadline: "2026-01-11", postedAt: "2026-01-01T12:00:00.000Z" }, today), { tone: "urgent", label: "Closes in 1 day" });
+  assert.deepEqual(getCardBadge({ deadline: "2099-12-31", postedAt: "2026-01-01T12:00:00.000Z" }, today), { tone: "new", label: "New" });
 });

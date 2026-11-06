@@ -48,6 +48,7 @@ model Opportunity {
   createdAt               DateTime          @default(now()) @db.Timestamptz(3)
   updatedAt               DateTime          @updatedAt @db.Timestamptz(3)
   location                String?           @db.VarChar(120)
+  hourlyPayCents          Int?
   commitment              String?           @db.VarChar(120)
   objectives              String[]          @default([])
   applicationInstructions String?           @db.VarChar(1500)

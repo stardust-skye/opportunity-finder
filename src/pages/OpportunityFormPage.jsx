@@ -33,6 +33,8 @@ function getInitialForm(opportunity, email) {
       deadline: "",
       applicationUrl: "",
       contactEmail: email,
+      location: "",
+      hourlyPay: "",
     };
   }
 
@@ -49,6 +51,8 @@ function getInitialForm(opportunity, email) {
     deadline: opportunity.deadline,
     applicationUrl: opportunity.applicationUrl || "",
     contactEmail: opportunity.contactEmail || email,
+    location: opportunity.sourceLocation || "",
+    hourlyPay: opportunity.hourlyPayCents == null ? "" : (opportunity.hourlyPayCents / 100).toFixed(2),
   };
 }
 
@@ -132,6 +136,9 @@ function OpportunityForm({ id, existingOpportunity, user }) {
     if (form.skills.length === 0) {
       nextErrors.skills = "Add at least one required skill.";
     }
+    if (form.hourlyPay.trim() && (!/^\d{1,6}(\.\d{1,2})?$/.test(form.hourlyPay.trim()) || Number(form.hourlyPay) > 100000)) {
+      nextErrors.hourlyPay = "Enter an amount from 0 to 100000 with at most two decimal places.";
+    }
     if (form.deadline && form.deadline < getToday()) {
       nextErrors.deadline = "Choose today or a future application deadline.";
     }
@@ -182,7 +189,8 @@ function OpportunityForm({ id, existingOpportunity, user }) {
       applicationUrl: form.applicationUrl.trim() || null,
       contactEmail: form.contactEmail.trim(),
       applicationInstructions: existingOpportunity?.sourceApplicationInstructions || null,
-      location: existingOpportunity?.sourceLocation || null,
+      location: form.location.trim() || null,
+      hourlyPayCents: form.hourlyPay.trim() === "" ? null : Math.round(Number(form.hourlyPay) * 100),
       commitment: existingOpportunity?.sourceCommitment || null,
     };
 

@@ -106,6 +106,15 @@ test("authorization protects professor APIs and derives verification from the da
   assert.equal(created.body.data.professorId, users[1]);
   assert.equal(created.body.data.status, "OPEN");
   assert.equal(created.body.data.professor.passwordHash, undefined);
+  assert.equal(created.body.data.location, null);
+  assert.equal(created.body.data.hourlyPayCents, null);
+  for (const hourlyPayCents of [-1, 0.1, 10000001, "2000"]) {
+    await professor.post("/api/professor/opportunities").send({ ...listing, hourlyPayCents }).expect(400);
+  }
+  const paid = await professor.post("/api/professor/opportunities").send({ ...listing, location: "Remote", hourlyPayCents: 1875 }).expect(201);
+  assert.equal(paid.body.data.location, "Remote");
+  assert.equal(paid.body.data.hourlyPayCents, 1875);
+  await professor.delete(`/api/professor/opportunities/${paid.body.data.id}`).send({}).expect(200);
 });
 
 test("public listing supports filtering, pagination and open-only detail", async () => {
@@ -125,8 +134,18 @@ test("only verified owners can edit, close, reopen and delete", async () => {
   await student.put(`/api/professor/opportunities/${opportunityId}`).send(listing).expect(403);
   await student.patch(`/api/professor/opportunities/${opportunityId}/status`).send({ status: "CLOSED" }).expect(403);
   await student.delete(`/api/professor/opportunities/${opportunityId}`).send({}).expect(403);
-  const updated = await professor.put(`/api/professor/opportunities/${opportunityId}`).send({ ...listing, title: "Updated" }).expect(200);
+  const updated = await professor.put(`/api/professor/opportunities/${opportunityId}`).send({ ...listing, title: "Updated", location: "Raleigh, NC", hourlyPayCents: 2050 }).expect(200);
   assert.equal(updated.body.data.title, "Updated");
+  assert.equal(updated.body.data.location, "Raleigh, NC");
+  assert.equal(updated.body.data.hourlyPayCents, 2050);
+  const detail = await request(app).get(`/api/opportunities/${opportunityId}`).expect(200);
+  assert.equal(detail.body.data.hourlyPayCents, 2050);
+  const olderClient = await professor.put(`/api/professor/opportunities/${opportunityId}`).send(listing).expect(200);
+  assert.equal(olderClient.body.data.hourlyPayCents, 2050);
+  const zero = await professor.put(`/api/professor/opportunities/${opportunityId}`).send({ ...listing, location: null, hourlyPayCents: 0 }).expect(200);
+  assert.equal(zero.body.data.hourlyPayCents, 0);
+  const cleared = await professor.put(`/api/professor/opportunities/${opportunityId}`).send({ ...listing, hourlyPayCents: null }).expect(200);
+  assert.equal(cleared.body.data.hourlyPayCents, null);
   await professor.patch(`/api/professor/opportunities/${opportunityId}/status`).send({ status: "CLOSED" }).expect(200);
   await request(app).get(`/api/opportunities/${opportunityId}`).expect(404);
   const own = await professor.get("/api/professor/opportunities").expect(200);

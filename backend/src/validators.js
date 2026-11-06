@@ -43,6 +43,7 @@ export const opportunitySchema = z.object({
   }, "Use an HTTP(S) URL without credentials.").nullable().optional(),
   contactEmail: email,
   location: optionalText(120),
+  hourlyPayCents: z.number().int().min(0).max(10000000).nullable().optional(),
   commitment: optionalText(120),
   objectives: z.array(text(500)).max(30).optional(),
   applicationInstructions: optionalText(1500),
